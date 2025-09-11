@@ -1,0 +1,5 @@
+{
+  "name": "Health Connect",
+  "description": "An elegant and modern web application to help users find and book appointments with doctors and hospitals seamlessly. Features include location-based filtering and dynamic search suggestions.",
+  "requestFramePermissions": []
+}
