@@ -52,3 +52,23 @@ export interface Appointment {
   status: 'Upcoming' | 'Completed' | 'Cancelled';
   paymentStatus: 'Paid';
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  profilePictureUrl: string;
+  hasMedicalProfile: boolean;
+}
+
+export interface HealthEvent {
+  id: string;
+  type: 'Appointment' | 'Prescription' | 'Report';
+  date: string;
+  title: string;
+  description: string;
+  doctor?: {
+    name: string;
+    specialty: string;
+  };
+}

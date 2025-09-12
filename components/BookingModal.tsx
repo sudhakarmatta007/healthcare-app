@@ -1,11 +1,13 @@
 
 import React, { useState, useMemo } from 'react';
-import type { Doctor, HospitalDoctor, Appointment } from '../types';
+import type { Doctor, HospitalDoctor, Appointment, Hospital } from '../types';
 
 interface BookingModalProps {
   doctor: Doctor | HospitalDoctor;
+  hospitals: Hospital[];
   onClose: () => void;
   onAppointmentBooked: (appointment: Appointment) => void;
+  onNavigateToAppointments: (tab: 'current' | 'history') => void;
 }
 
 type BookingStep = 'date' | 'time' | 'payment' | 'confirmed';
@@ -26,7 +28,7 @@ const MoonIcon = () => <svg className="w-8 h-8" fill="none" stroke="currentColor
 const CreditCardIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>;
 
 
-export const BookingModal: React.FC<BookingModalProps> = ({ doctor, onClose, onAppointmentBooked }) => {
+export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, onClose, onAppointmentBooked, onNavigateToAppointments }) => {
     const [step, setStep] = useState<BookingStep>('date');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -249,36 +251,78 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, onClose, onA
             );
         }
         
-        return (
-            <div className="flex flex-col items-center justify-center p-8 text-center h-full">
-                <div className="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center mb-5">
-                    <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+        const hospitalDetails = hospitals.find(h => h.name === confirmedAppointment.hospital);
+
+        const DetailItem: React.FC<{ icon: React.ReactNode; label: string; children: React.ReactNode; }> = ({ icon, label, children }) => (
+            <div className="flex items-start">
+                <div className="text-blue-500 w-5 h-5 mr-4 mt-1 flex-shrink-0">{icon}</div>
+                <div>
+                    <p className="text-xs font-semibold text-gray-500">{label}</p>
+                    <div className="text-gray-800 font-medium text-sm">{children}</div>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Appointment Confirmed!</h2>
-                <p className="text-gray-600 mb-6">Your appointment with {doctor.name} has been successfully scheduled and payment has been received.</p>
-                
-                <div className="bg-gray-50 p-6 rounded-xl w-full text-left mb-6 border border-gray-200">
-                    <div className="mb-4">
-                        <p className="font-semibold text-sm text-gray-500">Date & Time</p>
-                        <p className="text-lg font-bold text-gray-800">
-                            {new Date(confirmedAppointment.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })} at {confirmedAppointment.time}
-                        </p>
+            </div>
+        );
+
+        return (
+            <div className="p-8 animate-fade-in">
+                <div className="text-center mb-6">
+                    <div className="mx-auto bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                        <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <div className="mb-4">
-                         <p className="font-semibold text-sm text-gray-500">Doctor</p>
-                        <p className="text-lg font-bold text-gray-800">{doctor.name}, {'specialty' in doctor ? doctor.specialty : doctor.designation}</p>
-                    </div>
-                    <div className="border-t pt-4">
-                        <p className="font-semibold text-sm text-gray-500">Appointment ID</p>
-                        <div className="mt-1 flex items-center justify-between bg-blue-50 p-2 rounded-lg border border-dashed border-blue-300">
-                            <p className="text-lg font-mono text-blue-700 tracking-widest">{confirmedAppointment.id}</p>
-                            <button onClick={() => handleCopyId(confirmedAppointment.id)} className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors px-3 py-1 rounded-md hover:bg-blue-100">
-                                {copied ? 'Copied!' : 'Copy'}
-                            </button>
+                    <h2 className="text-2xl font-bold text-gray-900">Appointment Confirmed!</h2>
+                    <p className="text-sm text-gray-600 mt-2">A confirmation has been sent to your registered email and phone number.</p>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 space-y-4">
+                    <div className="flex items-center pb-4 border-b">
+                        <img src={doctor.imageUrl} alt={doctor.name} className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm" />
+                        <div className="ml-4">
+                            <h3 className="text-lg font-bold text-gray-900">{doctor.name}</h3>
+                            <p className="text-sm text-blue-600 font-semibold">{'specialty' in doctor ? doctor.specialty : doctor.designation}</p>
                         </div>
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>} label="Patient">
+                            John Doe {/* Placeholder */}
+                        </DetailItem>
+                        <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>} label="Appointment ID">
+                            <div className="flex items-center">
+                                <span className="font-mono text-xs">{confirmedAppointment.id}</span>
+                                <button onClick={() => handleCopyId(confirmedAppointment.id)} className="ml-2 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                                    {copied ? 'Copied' : 'Copy'}
+                                </button>
+                            </div>
+                        </DetailItem>
+                        <DetailItem icon={<CalendarIcon />} label="Date & Time">
+                            <span className="font-bold text-black">{new Date(confirmedAppointment.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span> at {confirmedAppointment.time}
+                        </DetailItem>
+                        <DetailItem icon={<CreditCardIcon />} label="Payment Status">
+                            Paid via UPI / Online
+                        </DetailItem>
+                    </div>
+                    {hospitalDetails && (
+                        <div className="pt-4 border-t">
+                            <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>} label="Hospital/Clinic">
+                                {hospitalDetails.name}<br/>
+                                <span className="text-gray-600 text-xs">{hospitalDetails.address}</span><br/>
+                                <a href={`tel:${hospitalDetails.contact}`} className="text-blue-600 hover:underline text-xs">{hospitalDetails.contact}</a>
+                            </DetailItem>
+                        </div>
+                    )}
                 </div>
-        
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-sm">
+                    <button className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
+                        Add to Calendar
+                    </button>
+                    <button onClick={() => onNavigateToAppointments('current')} className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
+                        View Current
+                    </button>
+                    <button onClick={() => onNavigateToAppointments('history')} className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
+                        View History
+                    </button>
+                </div>
+
                 <button onClick={onClose} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                     Done
                 </button>
@@ -341,17 +385,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, onClose, onA
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative overflow-hidden flex flex-col md:flex-row max-h-[95vh]">
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 z-10 hidden md:block">
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                <LeftPanel />
-                <div className="w-full md:w-2/3 overflow-y-auto">
-                    {step === 'date' && renderCalendar()}
-                    {step === 'time' && renderTimeSlots()}
-                    {step === 'payment' && renderPayment()}
-                    {step === 'confirmed' && renderConfirmation()}
-                </div>
+            <div className={`bg-white rounded-2xl shadow-2xl w-full relative overflow-hidden transition-all duration-300 ${step === 'confirmed' ? 'max-w-2xl' : 'max-w-4xl flex flex-col md:flex-row max-h-[95vh]'}`}>
+                {step === 'confirmed' ? (
+                    renderConfirmation()
+                ) : (
+                    <>
+                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 z-10 hidden md:block">
+                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        <LeftPanel />
+                        <div className="w-full md:w-2/3 overflow-y-auto">
+                            {step === 'date' && renderCalendar()}
+                            {step === 'time' && renderTimeSlots()}
+                            {step === 'payment' && renderPayment()}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

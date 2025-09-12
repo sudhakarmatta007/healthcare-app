@@ -1,15 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Appointment } from '../types';
 import { AppointmentCard } from './AppointmentCard';
 
 interface AppointmentsPageProps {
     appointments: Appointment[];
+    initialTab?: 'current' | 'history';
 }
 
 type Tab = 'current' | 'history';
 
-export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments }) => {
-    const [activeTab, setActiveTab] = useState<Tab>('current');
+export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments, initialTab = 'current' }) => {
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+
+    useEffect(() => {
+        setActiveTab(initialTab);
+    }, [initialTab]);
 
     const { currentAppointments, historyAppointments } = useMemo(() => {
         const current: Appointment[] = [];

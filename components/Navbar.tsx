@@ -1,11 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import type { User } from '../types';
 
 interface NavbarProps {
     onNavigate: (view: 'home' | 'appointments') => void;
     activeView: 'home' | 'appointments';
+    isLoggedIn: boolean;
+    user: User | null;
+    onLoginClick: () => void;
+    onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
+const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="relative" ref={menuRef}>
+            <button onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700 hidden sm:block">Welcome, {user.name.split(' ')[0]}</span>
+                <img src={user.profilePictureUrl} alt="User" className="w-9 h-9 rounded-full border-2 border-white shadow-sm" />
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5">
+                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
+                    <button onClick={onLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLoggedIn, user, onLoginClick, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -28,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
         setIsOpen(false);
     };
 
-    const isLight = activeView === 'appointments';
+    const isLight = activeView === 'appointments' || (isLoggedIn && activeView === 'home');
     
     const navClasses = isLight 
         ? 'bg-white shadow-md' 
@@ -55,8 +93,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
                     </div>
                      <div className="hidden md:block">
                         <div className="ml-4 flex items-center md:ml-6 space-x-2">
-                             <a href="#" className={`border px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${loginBtnClasses}`}>Login</a>
-                            <a href="#" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-md">Sign Up</a>
+                            {isLoggedIn && user ? (
+                                <UserMenu user={user} onLogout={onLogout} />
+                            ) : (
+                                <>
+                                    <button onClick={onLoginClick} className={`border px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${loginBtnClasses}`}>Login</button>
+                                    <button onClick={onLoginClick} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-md">Sign Up</button>
+                                </>
+                            )}
                         </div>
                     </div>
                     <div className="-mr-2 flex md:hidden">
@@ -77,12 +121,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView }) => {
             </div>
 
             {isOpen && (
-                <div className={`md:hidden ${isLight ? 'bg-white border-t border-gray-200' : ''}`} id="mobile-menu">
+                <div className={`md:hidden ${isLight ? 'bg-white border-t border-gray-200' : 'bg-slate-900/95 backdrop-blur-lg border-t border-slate-700'}`} id="mobile-menu">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <button onClick={() => handleNavClick('home')} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Home</button>
                         <button onClick={() => handleNavClick('appointments')} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Appointments</button>
-                        <a href="#" className={`${mobileLinkColor} block px-3 py-2 rounded-md text-base font-medium transition-colors`}>Login</a>
-                        <a href="#" className="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors">Sign Up</a>
+                        {isLoggedIn && user ? (
+                            <button onClick={onLogout} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Logout</button>
+                        ) : (
+                            <>
+                                <button onClick={onLoginClick} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Login</button>
+                                <button onClick={onLoginClick} className="bg-blue-600 text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors">Sign Up</button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

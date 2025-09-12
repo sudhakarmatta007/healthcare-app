@@ -7,7 +7,10 @@ import { HospitalDetails } from './components/HospitalDetails';
 import { BookingModal } from './components/BookingModal';
 import { DoctorProfileModal } from './components/DoctorProfileModal';
 import { AppointmentsPage } from './components/AppointmentsPage';
-import type { Doctor, Hospital, HospitalDoctor, Appointment } from './types';
+import { AuthModal } from './components/AuthModal';
+import { Dashboard } from './components/Dashboard';
+import { OnboardingModal } from './components/OnboardingModal';
+import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent } from './types';
 
 const DOCTORS_DATA: Doctor[] = [
   { id: 1, name: 'Dr. Sudhakar', specialty: 'Cardiologist', location: 'Eluru', rating: 4.8, imageUrl: 'https://picsum.photos/seed/doc1/400/400', qualification: 'MBBS, MD (Cardiology)', experience: 15, consultationFee: 800, bio: 'A dedicated cardiologist with 15 years of experience in treating heart conditions and promoting cardiac wellness.', satisfaction: 98, workingHours: 'Mon-Fri, 9 AM - 5 PM', contact: '+91 98765 43210', worksAt: ['Eluru Heart Center', 'City General Hospital'] },
@@ -117,15 +120,47 @@ const MOCK_APPOINTMENTS: Appointment[] = [
     { id: 'HIST3', doctor: DOCTORS_DATA[2], hospital: "Vijayawada Children's Hospital", date: '2024-05-01', time: '10:00 AM', status: 'Completed', paymentStatus: 'Paid' },
 ];
 
+const MOCK_USER_WITH_HISTORY: User = {
+    id: 'user123',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    profilePictureUrl: 'https://i.pravatar.cc/150?u=john_doe',
+    hasMedicalProfile: true,
+};
+
+const MOCK_USER_NEW: User = {
+    id: 'user456',
+    name: 'Jane Smith',
+    email: 'jane.smith@example.com',
+    profilePictureUrl: 'https://i.pravatar.cc/150?u=jane_smith',
+    hasMedicalProfile: false,
+};
+
+const MOCK_HEALTH_HISTORY: HealthEvent[] = [
+    { id: 'ev1', type: 'Appointment', date: '2024-07-15', title: 'Orthopedic Follow-up', description: 'Post-surgery check-up. Recovery is on track.', doctor: { name: 'Dr. Rajesh', specialty: 'Orthopedic Surgeon' } },
+    { id: 'ev2', type: 'Prescription', date: '2024-07-15', title: 'Pain Medication', description: 'Prescribed Ibuprofen for post-op pain management.' },
+    { id: 'ev3', type: 'Report', date: '2024-06-22', title: 'X-Ray Results', description: 'X-ray of the knee joint. Results attached.' },
+    { id: 'ev4', type: 'Appointment', date: '2024-06-20', title: 'Dermatology Consultation', description: 'Cancelled by patient.', doctor: { name: 'Dr. Ram', specialty: 'Dermatologist' } },
+    { id: 'ev5', type: 'Appointment', date: '2024-05-01', title: 'Annual Pediatric Check-up', description: 'Routine check-up for child. All vitals are normal.', doctor: { name: 'Dr. Vaseem', specialty: 'Pediatrician' } },
+];
 
 const App: React.FC = () => {
+  // Navigation & Page State
   const [activeView, setActiveView] = useState<'home' | 'appointments'>('home');
-  const [appointments, setAppointments] = useState<Appointment[]>(MOCK_APPOINTMENTS);
+  const [appointmentsInitialTab, setAppointmentsInitialTab] = useState<'current' | 'history'>('current');
   
+  // Auth State
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Data & Filter State
+  const [appointments, setAppointments] = useState<Appointment[]>(MOCK_APPOINTMENTS);
   const [doctorQuery, setDoctorQuery] = useState('');
   const [hospitalQuery, setHospitalQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('All Locations');
   
+  // UI State
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>(DOCTORS_DATA);
   const [filteredHospitals, setFilteredHospitals] = useState<Hospital[]>(HOSPITALS_DATA);
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
@@ -159,12 +194,32 @@ const App: React.FC = () => {
     setFilteredHospitals(hospitals);
   }, [doctorQuery, hospitalQuery, locationFilter]);
 
+  // --- Auth Handlers ---
+  const handleLoginClick = () => setShowAuthModal(true);
+  const handleLogout = () => setCurrentUser(null);
+
+  const handleGoogleLogin = (userType: 'existing' | 'new') => {
+      const user = userType === 'existing' ? MOCK_USER_WITH_HISTORY : MOCK_USER_NEW;
+      setCurrentUser(user);
+      setShowAuthModal(false);
+      
+      // Trigger onboarding for new users
+      if (!user.hasMedicalProfile) {
+          setTimeout(() => setShowOnboarding(true), 500);
+      }
+  };
+
+  const handleOnboardingComplete = () => {
+      if (currentUser) {
+          setCurrentUser({ ...currentUser, hasMedicalProfile: true });
+      }
+      setShowOnboarding(false);
+  };
+  
+  // --- Navigation Handlers ---
   const handleNavigate = (view: 'home' | 'appointments') => {
     setActiveView(view);
-    // Reset selections when navigating away from home
-    if(view !== 'home') {
-      setSelectedHospital(null);
-    }
+    if(view !== 'home') setSelectedHospital(null);
   };
 
   const handleLocationFilter = (location: string) => {
@@ -174,45 +229,32 @@ const App: React.FC = () => {
     setSelectedHospital(null);
   };
   
-  const handleSelectHospital = (hospital: Hospital) => {
-    setSelectedHospital(hospital);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedHospital(null);
-  };
-  
-  const handleOpenBookingModal = (doctor: Doctor | HospitalDoctor) => {
-    setSelectedDoctorForBooking(doctor);
-  };
-
-  const handleCloseBookingModal = () => {
-    setSelectedDoctorForBooking(null);
-  };
-  
-  const handleOpenProfileModal = (doctor: Doctor | HospitalDoctor) => {
-    setSelectedDoctorForProfile(doctor);
-  };
-
-  const handleCloseProfileModal = () => {
-    setSelectedDoctorForProfile(null);
-  };
+  // --- Modal & Detail View Handlers ---
+  const handleSelectHospital = (hospital: Hospital) => setSelectedHospital(hospital);
+  const handleCloseDetails = () => setSelectedHospital(null);
+  const handleOpenBookingModal = (doctor: Doctor | HospitalDoctor) => setSelectedDoctorForBooking(doctor);
+  const handleCloseBookingModal = () => setSelectedDoctorForBooking(null);
+  const handleOpenProfileModal = (doctor: Doctor | HospitalDoctor) => setSelectedDoctorForProfile(doctor);
+  const handleCloseProfileModal = () => setSelectedDoctorForProfile(null);
 
   const handleBookFromProfile = (doctor: Doctor | HospitalDoctor) => {
     handleCloseProfileModal();
-    setTimeout(() => {
-        handleOpenBookingModal(doctor);
-    }, 100);
+    setTimeout(() => handleOpenBookingModal(doctor), 100);
   }
 
   const handleAppointmentBooked = (appointment: Appointment) => {
       setAppointments(prev => [appointment, ...prev]);
-      handleCloseBookingModal();
+  };
+
+  const handleNavigateToAppointments = (tab: 'current' | 'history') => {
+    handleCloseBookingModal();
+    setTimeout(() => {
+        setAppointmentsInitialTab(tab);
+        handleNavigate('appointments');
+    }, 150);
   };
   
-  const shouldShowResults = locationFilter !== 'All Locations';
-
-  const renderHomePage = () => {
+  const renderHomePageContent = () => {
     if (selectedHospital) {
       return (
         <HospitalDetails 
@@ -222,6 +264,10 @@ const App: React.FC = () => {
         />
       );
     }
+
+    const hospitalListTitle = locationFilter === 'All Locations' ? 'All Available Hospitals' : `Hospitals in ${locationFilter}`;
+    const doctorListTitle = locationFilter === 'All Locations' ? 'All Available Doctors' : `Doctors in ${locationFilter}`;
+
     return (
       <>
         <HeroSection
@@ -230,84 +276,96 @@ const App: React.FC = () => {
         />
         <div className="bg-slate-100 py-16 sm:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              {shouldShowResults && (
-                <>
-                  <div className="mb-16">
-                      <h2 className="text-4xl font-bold tracking-tight text-gray-900 mb-6">Hospitals in {locationFilter}</h2>
-                      <div className="relative mb-8 max-w-lg">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                              </svg>
-                          </div>
-                          <input
-                              type="text"
-                              placeholder="Search for hospitals or services..."
-                              value={hospitalQuery}
-                              onChange={(e) => setHospitalQuery(e.target.value)}
-                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          />
+              <div className="mb-16">
+                  <h2 className="text-4xl font-bold tracking-tight text-gray-900 mb-6">{hospitalListTitle}</h2>
+                  <div className="relative mb-8 max-w-lg">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                          </svg>
                       </div>
-                      {filteredHospitals.length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                              {filteredHospitals.map(hospital => <HospitalCard key={hospital.id} hospital={hospital} onSelect={handleSelectHospital} />)}
-                          </div>
-                      ) : (
-                          <p className="text-gray-600 text-lg">No hospitals found matching your search.</p>
-                      )}
+                      <input
+                          type="text"
+                          placeholder="Search for hospitals or services..."
+                          value={hospitalQuery}
+                          onChange={(e) => setHospitalQuery(e.target.value)}
+                          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      />
                   </div>
+                  {filteredHospitals.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                          {filteredHospitals.map(hospital => <HospitalCard key={hospital.id} hospital={hospital} onSelect={handleSelectHospital} />)}
+                      </div>
+                  ) : (
+                      <p className="text-gray-600 text-lg">No hospitals found matching your search.</p>
+                  )}
+              </div>
 
-                  <div>
-                      <h2 className="text-4xl font-bold tracking-tight text-gray-900 mb-6">Doctors in {locationFilter}</h2>
-                      <div className="relative mb-8 max-w-lg">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                              </svg>
-                          </div>
-                          <input
-                              type="text"
-                              placeholder="Search for doctors or specialties..."
-                              value={doctorQuery}
-                              onChange={(e) => setDoctorQuery(e.target.value)}
-                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          />
+              <div>
+                  <h2 className="text-4xl font-bold tracking-tight text-gray-900 mb-6">{doctorListTitle}</h2>
+                  <div className="relative mb-8 max-w-lg">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                          </svg>
                       </div>
-                       {filteredDoctors.length > 0 ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                              {filteredDoctors.map(doctor => <DoctorCard key={doctor.id} doctor={doctor} onBook={handleOpenBookingModal} onViewProfile={handleOpenProfileModal}/>)}
-                          </div>
-                      ) : (
-                           <p className="text-gray-600 text-lg">No doctors found matching your search.</p>
-                      )}
+                      <input
+                          type="text"
+                          placeholder="Search for doctors or specialties..."
+                          value={doctorQuery}
+                          onChange={(e) => setDoctorQuery(e.target.value)}
+                          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      />
                   </div>
-                </>
-              )}
-              {locationFilter === 'All Locations' && (
-                  <div className="text-center py-12">
-                      <p className="text-gray-600 text-xl">Please select a location to see available doctors and hospitals.</p>
-                  </div>
-              )}
+                   {filteredDoctors.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                          {filteredDoctors.map(doctor => <DoctorCard key={doctor.id} doctor={doctor} onBook={handleOpenBookingModal} onViewProfile={handleOpenProfileModal}/>)}
+                      </div>
+                  ) : (
+                       <p className="text-gray-600 text-lg">No doctors found matching your search.</p>
+                  )}
+              </div>
           </div>
         </div>
       </>
     );
   };
 
+  const renderAuthenticatedView = () => {
+      if (!currentUser) return null;
+      
+      if (activeView === 'appointments') {
+          return <AppointmentsPage appointments={appointments} initialTab={appointmentsInitialTab} />;
+      }
+      
+      return <Dashboard user={currentUser} healthHistory={MOCK_HEALTH_HISTORY} onNavigateToAppointments={() => handleNavigate('appointments')} />;
+  };
+
   return (
     <>
-      <Navbar onNavigate={handleNavigate} activeView={activeView} />
+      <Navbar 
+        onNavigate={handleNavigate} 
+        activeView={activeView} 
+        isLoggedIn={!!currentUser}
+        user={currentUser}
+        onLoginClick={handleLoginClick}
+        onLogout={handleLogout}
+      />
       <main>
-        {activeView === 'home' && renderHomePage()}
-        {activeView === 'appointments' && <AppointmentsPage appointments={appointments} />}
+        {currentUser ? renderAuthenticatedView() : (activeView === 'home' ? renderHomePageContent() : <AppointmentsPage appointments={appointments} initialTab={appointmentsInitialTab} />)}
       </main>
       
       {/* Modals */}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} onGoogleLogin={handleGoogleLogin} />}
+      {showOnboarding && currentUser && <OnboardingModal user={currentUser} onClose={handleOnboardingComplete} />}
+
       {selectedDoctorForBooking && (
         <BookingModal 
-          doctor={selectedDoctorForBooking as Doctor} 
+          doctor={selectedDoctorForBooking as Doctor}
+          hospitals={HOSPITALS_DATA}
           onClose={handleCloseBookingModal}
           onAppointmentBooked={handleAppointmentBooked}
+          onNavigateToAppointments={handleNavigateToAppointments}
         />
       )}
       {selectedDoctorForProfile && (
