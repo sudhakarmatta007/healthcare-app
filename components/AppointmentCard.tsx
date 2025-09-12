@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Appointment } from '../types';
+import { StarRating } from './StarRating';
+
 
 interface AppointmentCardProps {
     appointment: Appointment;
+    onUpdateRating: (appointmentId: string, doctorRating: number, serviceRating: number) => void;
 }
 
 const InfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
@@ -20,10 +23,13 @@ const HospitalIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentC
 const CalendarIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>;
 const ClockIcon = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>;
 
-export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
+export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onUpdateRating }) => {
     const { doctor, hospital, date, time, status, id } = appointment;
     const specialty = 'specialty' in doctor ? doctor.specialty : doctor.designation;
     
+    const [tempDoctorRating, setTempDoctorRating] = useState(0);
+    const [tempServiceRating, setTempServiceRating] = useState(0);
+
     const formattedDate = new Date(date).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -36,6 +42,71 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment })
         Completed: 'bg-green-100 text-green-800',
         Cancelled: 'bg-red-100 text-red-800',
     };
+
+    const handleSubmitRating = () => {
+        if (tempDoctorRating > 0 && tempServiceRating > 0) {
+            onUpdateRating(appointment.id, tempDoctorRating, tempServiceRating);
+        }
+    };
+    
+    const renderFooter = () => {
+        if (status === 'Upcoming') {
+            return (
+                <div className="bg-gray-50 px-6 py-3 flex flex-wrap gap-2 justify-end">
+                    <button className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">Cancel</button>
+                    <button className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Reschedule</button>
+                </div>
+            );
+        }
+        
+        if (status === 'Completed') {
+             return (
+                <div className="bg-gray-50 px-6 py-4">
+                    {typeof appointment.doctorRating === 'number' && typeof appointment.serviceRating === 'number' ? (
+                        <div>
+                            <h4 className="text-sm font-bold text-gray-700 mb-3">Your Rating</h4>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
+                                <div className="flex items-center gap-x-2">
+                                    <p className="text-sm font-medium text-gray-600">Doctor:</p>
+                                    <StarRating rating={appointment.doctorRating} />
+                                </div>
+                                <div className="flex items-center gap-x-2">
+                                    <p className="text-sm font-medium text-gray-600">Service:</p>
+                                    <StarRating rating={appointment.serviceRating} />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <h4 className="text-sm font-bold text-gray-700 mb-3">Rate Your Experience</h4>
+                            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                               <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
+                                    <div className="flex items-center gap-x-2">
+                                        <p className="text-sm font-medium text-gray-600 w-16">Doctor</p>
+                                        <StarRating rating={tempDoctorRating} onRatingChange={setTempDoctorRating} isEditable />
+                                    </div>
+                                    <div className="flex items-center gap-x-2">
+                                        <p className="text-sm font-medium text-gray-600 w-16">Service</p>
+                                        <StarRating rating={tempServiceRating} onRatingChange={setTempServiceRating} isEditable />
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleSubmitRating}
+                                    disabled={!tempDoctorRating || !tempServiceRating}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
+                                >
+                                    Submit Rating
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        return null;
+    };
+
 
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg">
@@ -65,12 +136,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment })
                     <InfoItem icon={<ClockIcon />} label="Time" value={time} />
                 </dl>
             </div>
-            {status === 'Upcoming' && (
-                <div className="bg-gray-50 px-6 py-3 flex flex-wrap gap-2 justify-end">
-                    <button className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">Cancel</button>
-                    <button className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Reschedule</button>
-                </div>
-            )}
+            {renderFooter()}
         </div>
     );
 };

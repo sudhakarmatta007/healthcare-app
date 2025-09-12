@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Appointment } from '../types';
 import { AppointmentCard } from './AppointmentCard';
@@ -5,11 +6,12 @@ import { AppointmentCard } from './AppointmentCard';
 interface AppointmentsPageProps {
     appointments: Appointment[];
     initialTab?: 'current' | 'history';
+    onUpdateRating: (appointmentId: string, doctorRating: number, serviceRating: number) => void;
 }
 
 type Tab = 'current' | 'history';
 
-export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments, initialTab = 'current' }) => {
+export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments, initialTab = 'current', onUpdateRating }) => {
     const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
     useEffect(() => {
@@ -17,11 +19,15 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
     }, [initialTab]);
 
     const { currentAppointments, historyAppointments } = useMemo(() => {
+        const now = new Date();
         const current: Appointment[] = [];
         const history: Appointment[] = [];
 
         appointments.forEach(app => {
-            if (app.status === 'Upcoming') {
+            const appointmentDateTime = new Date(`${app.date} ${app.time}`);
+            
+            // An upcoming appointment that is in the past is moved to history
+            if (app.status === 'Upcoming' && appointmentDateTime >= now) {
                 current.push(app);
             } else {
                 history.push(app);
@@ -29,8 +35,8 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
         });
         
         // Sort current by date ascending, history by date descending
-        current.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        current.sort((a, b) => new Date(`${a.date} ${a.time}`).getTime() - new Date(`${b.date} ${b.time}`).getTime());
+        history.sort((a, b) => new Date(`${b.date} ${b.time}`).getTime() - new Date(`${a.date} ${a.time}`).getTime());
 
         return { currentAppointments: current, historyAppointments: history };
     }, [appointments]);
@@ -75,7 +81,7 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
                 <div className="space-y-6">
                     {displayedAppointments.length > 0 ? (
                         displayedAppointments.map(app => (
-                            <AppointmentCard key={app.id} appointment={app} />
+                            <AppointmentCard key={app.id} appointment={app} onUpdateRating={onUpdateRating} />
                         ))
                     ) : (
                         <div className="text-center py-16 px-6 bg-white rounded-lg shadow-sm border border-gray-200">

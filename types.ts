@@ -51,6 +51,8 @@ export interface Appointment {
   time: string;
   status: 'Upcoming' | 'Completed' | 'Cancelled';
   paymentStatus: 'Paid';
+  doctorRating?: number;
+  serviceRating?: number;
 }
 
 export interface User {

@@ -35,6 +35,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
     const [selectedSession, setSelectedSession] = useState<TimeSession | null>(null);
     const [confirmedAppointment, setConfirmedAppointment] = useState<Appointment | null>(null);
     const [copied, setCopied] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -91,6 +92,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
             onAppointmentBooked(newAppointment);
             setStep('confirmed');
         }
+    };
+    
+    const handlePayment = () => {
+        setIsProcessingPayment(true);
+        // Simulate payment processing and confirmation
+        setTimeout(() => {
+            handleFinalizeBooking();
+        }, 2500);
     };
 
     const handleCopyId = (id: string) => {
@@ -194,6 +203,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
     const renderPayment = () => {
         const bookingFee = 15;
         const total = doctor.consultationFee + bookingFee;
+        const upiPayLink = `upi://pay?pa=8125929668-2@axl&pn=Payee&am=${total.toFixed(2)}&tn=Health%20Connect%20Appointment`;
 
         return (
              <div className="p-8">
@@ -223,20 +233,32 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                 </div>
 
                 <div className="space-y-4">
-                     <a 
-                        href="upi://pay?pa=8125929668-2@axl&pn=Payee" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
-                    >
-                        Pay Securely via UPI
-                    </a>
-                     <button 
-                        onClick={handleFinalizeBooking}
-                        className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300"
-                    >
-                        I Have Paid, Confirm Now
-                    </button>
+                    {!isProcessingPayment ? (
+                        <a 
+                            href={upiPayLink}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            onClick={handlePayment}
+                            className="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                        >
+                            Pay Securely via UPI
+                        </a>
+                    ) : (
+                        <div className="text-center p-4 bg-gray-100 rounded-lg animate-fade-in">
+                            <div className="flex justify-center items-center mb-2">
+                                <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-700">
+                                Processing payment...
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Please wait while we confirm your transaction.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -269,8 +291,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                     <div className="mx-auto bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mb-4">
                         <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Appointment Confirmed!</h2>
-                    <p className="text-sm text-gray-600 mt-2">A confirmation has been sent to your registered email and phone number.</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Your Appointment ID is Booked</h2>
+                    <p className="text-sm text-gray-600 mt-2">Your appointment details are shown below. A confirmation has been sent to you.</p>
                 </div>
 
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 space-y-4">

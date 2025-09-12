@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { User } from '../types';
 
@@ -8,6 +9,8 @@ interface NavbarProps {
     user: User | null;
     onLoginClick: () => void;
     onLogout: () => void;
+    onOpenRegisterHospital: () => void;
+    onOpenRegisterDoctor: () => void;
 }
 
 const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
@@ -42,8 +45,55 @@ const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogo
     );
 };
 
+const RegisterMenu: React.FC<{ 
+    onOpenRegisterHospital: () => void; 
+    onOpenRegisterDoctor: () => void; 
+    linkColor: string;
+    onCloseMobileMenu: () => void;
+}> = ({ onOpenRegisterHospital, onOpenRegisterDoctor, linkColor, onCloseMobileMenu }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLoggedIn, user, onLoginClick, onLogout }) => {
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleHospitalClick = () => {
+        onOpenRegisterHospital();
+        setIsOpen(false);
+        onCloseMobileMenu();
+    };
+
+    const handleDoctorClick = () => {
+        onOpenRegisterDoctor();
+        setIsOpen(false);
+        onCloseMobileMenu();
+    };
+
+    return (
+        <div className="relative" ref={menuRef}>
+            <button onClick={() => setIsOpen(!isOpen)} className={`${linkColor} px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center`}>
+                Register
+                <svg className={`w-4 h-4 ml-1 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            {isOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-fade-in-down">
+                    <button onClick={handleHospitalClick} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Register Hospital</button>
+                    <button onClick={handleDoctorClick} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Register as Doctor</button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -89,6 +139,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLogged
                         <div className="ml-10 flex items-baseline space-x-4">
                             <button onClick={() => handleNavClick('home')} className={`${linkColor} px-3 py-2 rounded-md text-sm font-medium transition-colors`}>Home</button>
                             <button onClick={() => handleNavClick('appointments')} className={`${linkColor} px-3 py-2 rounded-md text-sm font-medium transition-colors`}>Appointments</button>
+                            <RegisterMenu 
+                                onOpenRegisterHospital={onOpenRegisterHospital} 
+                                onOpenRegisterDoctor={onOpenRegisterDoctor}
+                                linkColor={linkColor}
+                                onCloseMobileMenu={() => {}}
+                            />
                         </div>
                     </div>
                      <div className="hidden md:block">
@@ -125,6 +181,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLogged
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <button onClick={() => handleNavClick('home')} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Home</button>
                         <button onClick={() => handleNavClick('appointments')} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Appointments</button>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                        <button onClick={() => { onOpenRegisterHospital(); setIsOpen(false); }} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Register Hospital</button>
+                        <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Register as Doctor</button>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         {isLoggedIn && user ? (
                             <button onClick={onLogout} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Logout</button>
                         ) : (
