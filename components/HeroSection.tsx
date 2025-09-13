@@ -4,9 +4,10 @@ import React from "react";
 interface HeroSectionProps {
   onLocationFilter: (location: string) => void;
   selectedLocation: string;
+  onOpenSymptomChecker: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onLocationFilter, selectedLocation }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onLocationFilter, selectedLocation, onOpenSymptomChecker }) => {
   const locations = [
     "All Locations", "Eluru", "Hanuman Junction", "Vijayawada", "Gudivada", "Hyderabad"
   ];
@@ -53,6 +54,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLocationFilter, sele
             ))}
           </div>
         </div>
+
+        <div className="mt-12 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">Feeling Unwell?</h2>
+            <p className="text-white/80 max-w-xl mx-auto mb-6">
+                Get preliminary insights into your symptoms. Our AI-powered tool can help guide you to the right specialist.
+            </p>
+            <button
+                onClick={onOpenSymptomChecker}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 inline-flex items-center text-lg"
+            >
+                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                Check Your Symptoms
+            </button>
+        </div>
+        
       </div>
     </div>
   );

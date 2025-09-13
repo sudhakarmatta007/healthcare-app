@@ -4,6 +4,7 @@ import type { User } from '../types';
 
 interface NavbarProps {
     onNavigate: (view: 'home' | 'appointments') => void;
+    onNavigateToDashboard: () => void;
     activeView: 'home' | 'appointments';
     isLoggedIn: boolean;
     user: User | null;
@@ -13,7 +14,7 @@ interface NavbarProps {
     onOpenRegisterDoctor: () => void;
 }
 
-const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
+const UserMenu: React.FC<{ user: User; onLogout: () => void; onNavigateToDashboard: () => void; }> = ({ user, onLogout, onNavigateToDashboard }) => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,11 @@ const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogo
         };
     }, []);
 
+    const handleProfileClick = () => {
+        onNavigateToDashboard();
+        setIsOpen(false);
+    };
+
     return (
         <div className="relative" ref={menuRef}>
             <button onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2">
@@ -37,7 +43,7 @@ const UserMenu: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogo
             </button>
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5">
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
+                    <button onClick={handleProfileClick} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</button>
                     <button onClick={onLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
                 </div>
             )}
@@ -92,8 +98,7 @@ const RegisterMenu: React.FC<{
     );
 };
 
-
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboard, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -150,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLogged
                      <div className="hidden md:block">
                         <div className="ml-4 flex items-center md:ml-6 space-x-2">
                             {isLoggedIn && user ? (
-                                <UserMenu user={user} onLogout={onLogout} />
+                                <UserMenu user={user} onLogout={onLogout} onNavigateToDashboard={onNavigateToDashboard} />
                             ) : (
                                 <>
                                     <button onClick={onLoginClick} className={`border px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${loginBtnClasses}`}>Login</button>
@@ -186,7 +191,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, isLogged
                         <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Register as Doctor</button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         {isLoggedIn && user ? (
-                            <button onClick={onLogout} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Logout</button>
+                             <>
+                                <button onClick={() => { onNavigateToDashboard(); setIsOpen(false); }} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>My Profile</button>
+                                <button onClick={onLogout} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Logout</button>
+                            </>
                         ) : (
                             <>
                                 <button onClick={onLoginClick} className={`${mobileLinkColor} block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors`}>Login</button>

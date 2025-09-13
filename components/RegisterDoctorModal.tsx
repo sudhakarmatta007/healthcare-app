@@ -16,7 +16,6 @@ export const RegisterDoctorModal: React.FC<RegisterDoctorModalProps> = ({ onClos
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState('');
-    // Fix: Add `image` property to the errors state type to handle file validation.
     const [errors, setErrors] = useState<Partial<typeof formData> & { image?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -33,7 +32,6 @@ export const RegisterDoctorModal: React.FC<RegisterDoctorModalProps> = ({ onClos
         }
     };
 
-    // Fix: Corrected validation logic to handle all errors in one state update.
     const validate = (): boolean => {
         const newErrors: Partial<typeof formData> & { image?: string } = {};
         if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required';

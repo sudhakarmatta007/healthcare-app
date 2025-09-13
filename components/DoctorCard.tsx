@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Doctor } from '../types';
 
@@ -18,7 +19,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, onBook, onViewPr
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 group flex flex-col">
       <div onClick={() => onViewProfile(doctor)} className="cursor-pointer">
         <div className="relative">
-          <img className="w-full h-56 object-cover" src={doctor.imageUrl} alt={`Dr. ${doctor.name}`} />
+          <img className="w-full h-56 object-cover bg-gray-100" src={doctor.imageUrl} alt={`Dr. ${doctor.name}`} />
           <div className="absolute top-0 right-0 bg-yellow-400 text-white font-bold px-3 py-1 m-2 rounded-full text-sm flex items-center gap-1">
             <StarIcon className="w-4 h-4" />
             <span>{doctor.rating}</span>

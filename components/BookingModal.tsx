@@ -7,7 +7,7 @@ interface BookingModalProps {
   hospitals: Hospital[];
   onClose: () => void;
   onAppointmentBooked: (appointment: Appointment) => void;
-  onNavigateToAppointments: (tab: 'current' | 'history') => void;
+  onNavigateToAppointments: () => void;
 }
 
 type BookingStep = 'date' | 'time' | 'payment' | 'confirmed';
@@ -274,16 +274,44 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
         }
         
         const hospitalDetails = hospitals.find(h => h.name === confirmedAppointment.hospital);
+        const specialty = 'specialty' in doctor ? doctor.specialty : doctor.designation;
+        const formattedDate = new Date(confirmedAppointment.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+        const shareText = `Appointment Confirmation:
+- Doctor: ${doctor.name} (${specialty})
+- Hospital: ${hospitalDetails?.name || confirmedAppointment.hospital}
+- Date: ${formattedDate}
+- Time: ${confirmedAppointment.time}
+- Booking ID: ${confirmedAppointment.id}`;
+        
+        const emailLink = `mailto:?subject=Appointment Confirmation&body=${encodeURIComponent(shareText)}`;
+        const whatsappLink = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
+        const handlePrint = () => {
+             window.print();
+        };
 
         const DetailItem: React.FC<{ icon: React.ReactNode; label: string; children: React.ReactNode; }> = ({ icon, label, children }) => (
             <div className="flex items-start">
                 <div className="text-blue-500 w-5 h-5 mr-4 mt-1 flex-shrink-0">{icon}</div>
                 <div>
-                    <p className="text-xs font-semibold text-gray-500">{label}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{label}</p>
                     <div className="text-gray-800 font-medium text-sm">{children}</div>
                 </div>
             </div>
         );
+        
+        const ActionButton: React.FC<{ icon: React.ReactNode; text: string; onClick?: () => void; href?: string;}> = ({ icon, text, onClick, href }) => {
+            const commonProps = {
+                className: "flex flex-col items-center justify-center p-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 hover:text-gray-900 transition-colors text-xs"
+            };
+            
+            if (href) {
+                return <a href={href} target="_blank" rel="noopener noreferrer" {...commonProps}>{icon}<span className="mt-1.5">{text}</span></a>;
+            }
+            
+            return <button onClick={onClick} {...commonProps}>{icon}<span className="mt-1.5">{text}</span></button>;
+        };
 
         return (
             <div className="p-8 animate-fade-in">
@@ -291,23 +319,20 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                     <div className="mx-auto bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mb-4">
                         <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Your Appointment ID is Booked</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">Your appointment is confirmed!</h2>
                     <p className="text-sm text-gray-600 mt-2">Your appointment details are shown below. A confirmation has been sent to you.</p>
                 </div>
 
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 space-y-4">
+                <div id="appointment-details-card" className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6 space-y-4">
                     <div className="flex items-center pb-4 border-b">
                         <img src={doctor.imageUrl} alt={doctor.name} className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm" />
                         <div className="ml-4">
                             <h3 className="text-lg font-bold text-gray-900">{doctor.name}</h3>
-                            <p className="text-sm text-blue-600 font-semibold">{'specialty' in doctor ? doctor.specialty : doctor.designation}</p>
+                            <p className="text-sm text-blue-600 font-semibold">{specialty}</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>} label="Patient">
-                            John Doe {/* Placeholder */}
-                        </DetailItem>
-                        <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>} label="Appointment ID">
+                         <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>} label="Booking ID">
                             <div className="flex items-center">
                                 <span className="font-mono text-xs">{confirmedAppointment.id}</span>
                                 <button onClick={() => handleCopyId(confirmedAppointment.id)} className="ml-2 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
@@ -315,39 +340,39 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                                 </button>
                             </div>
                         </DetailItem>
-                        <DetailItem icon={<CalendarIcon />} label="Date & Time">
-                            <span className="font-bold text-black">{new Date(confirmedAppointment.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span> at {confirmedAppointment.time}
-                        </DetailItem>
                         <DetailItem icon={<CreditCardIcon />} label="Payment Status">
-                            Paid via UPI / Online
+                            <span className="font-bold text-green-600">{confirmedAppointment.paymentStatus} via UPI / Online</span>
                         </DetailItem>
-                    </div>
-                    {hospitalDetails && (
-                        <div className="pt-4 border-t">
+                         <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>} label="Date & Time">
+                            <span className="font-bold text-black">{formattedDate}</span> at {confirmedAppointment.time}
+                        </DetailItem>
+                        {hospitalDetails && (
                             <DetailItem icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>} label="Hospital/Clinic">
-                                {hospitalDetails.name}<br/>
-                                <span className="text-gray-600 text-xs">{hospitalDetails.address}</span><br/>
-                                <a href={`tel:${hospitalDetails.contact}`} className="text-blue-600 hover:underline text-xs">{hospitalDetails.contact}</a>
+                                {hospitalDetails.name} <br/>
+                                <span className="text-gray-600 text-xs">{hospitalDetails.address}</span>
                             </DetailItem>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 text-sm">
-                    <button className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
-                        Add to Calendar
-                    </button>
-                    <button onClick={() => onNavigateToAppointments('current')} className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
-                        View Current
-                    </button>
-                    <button onClick={() => onNavigateToAppointments('history')} className="w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors">
-                        View History
-                    </button>
+                <div className="mt-6 mb-6 text-sm">
+                    <h4 className="text-center font-semibold text-gray-600 mb-3">Manage Your Booking</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                       <ActionButton icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>} text="Add to Calendar" />
+                       <ActionButton icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>} text="Download/Print" onClick={handlePrint} />
+                       <ActionButton icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>} text="Share via Email" href={emailLink} />
+                       <ActionButton icon={<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></svg>} text="Share via WhatsApp" href={whatsappLink}/>
+                    </div>
                 </div>
 
-                <button onClick={onClose} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                    Done
-                </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                     <button onClick={onNavigateToAppointments} className="w-full text-center bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                        View My Appointments
+                    </button>
+                    <button onClick={onClose} className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        Done
+                    </button>
+                </div>
             </div>
         );
     };

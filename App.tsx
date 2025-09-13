@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { DoctorCard } from './components/DoctorCard';
@@ -14,16 +14,30 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { Footer } from './components/Footer';
 import { RegisterHospitalModal } from './components/RegisterHospitalModal';
 import { RegisterDoctorModal } from './components/RegisterDoctorModal';
+import { SearchSuggestions } from './components/SearchSuggestions';
+import { SymptomCheckerModal } from './components/SymptomCheckerModal';
+import { ConfirmationModal } from './components/ConfirmationModal';
+import { Chatbot } from './components/Chatbot';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent } from './types';
 
+const DOCTOR_IMAGES = {
+  sudhakar: 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=600',
+  ram: 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=600',
+  vaseem: 'https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=600',
+  rajesh: 'https://images.pexels.com/photos/5327653/pexels-photo-5327653.jpeg?auto=compress&cs=tinysrgb&w=600',
+  priya: 'https://images.pexels.com/photos/4167544/pexels-photo-4167544.jpeg?auto=compress&cs=tinysrgb&w=600',
+  anil: 'https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=600',
+  kavitha: 'https://images.pexels.com/photos/3786126/pexels-photo-3786126.jpeg?auto=compress&cs=tinysrgb&w=600'
+};
+
 const DOCTORS_DATA: Doctor[] = [
-  { id: 1, name: 'Dr. Sudhakar', specialty: 'Cardiologist', location: 'Eluru', rating: 4.8, imageUrl: 'https://images.pexels.com/photos/5207104/pexels-photo-5207104.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, MD (Cardiology)', experience: 15, consultationFee: 800, bio: 'A dedicated cardiologist with 15 years of experience in treating heart conditions and promoting cardiac wellness.', satisfaction: 98, workingHours: 'Mon-Fri, 9 AM - 5 PM', contact: '+91 98765 43210', worksAt: ['Eluru Heart Center', 'City General Hospital'] },
-  { id: 2, name: 'Dr. Ram', specialty: 'Dermatologist', location: 'Hanuman Junction', rating: 4.9, imageUrl: 'https://images.pexels.com/photos/5792911/pexels-photo-5792911.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, DNB (Dermatology)', experience: 12, consultationFee: 600, bio: 'Specializes in cosmetic and clinical dermatology, helping patients achieve healthy and radiant skin.', satisfaction: 99, workingHours: 'Tue-Sat, 10 AM - 7 PM', contact: '+91 98765 43211', worksAt: ['Hanuman Junction Skin Clinic'] },
-  { id: 3, name: 'Dr. Vaseem', specialty: 'Pediatrician', location: 'Vijayawada', rating: 4.7, imageUrl: 'https://images.pexels.com/photos/5327656/pexels-photo-5327656.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, MD (Pediatrics)', experience: 10, consultationFee: 700, bio: 'A friendly and compassionate pediatrician committed to the health and well-being of children.', satisfaction: 97, workingHours: 'Mon-Sat, 10 AM - 6 PM', contact: '+91 98765 43212', worksAt: ["Vijayawada Children's Hospital"] },
-  { id: 4, name: 'Dr. Rajesh', specialty: 'Orthopedic Surgeon', location: 'Gudivada', rating: 4.6, imageUrl: 'https://images.pexels.com/photos/4270088/pexels-photo-4270088.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, MS (Orthopedics)', experience: 18, consultationFee: 900, bio: 'Expert in joint replacement and sports injuries, focused on restoring mobility and quality of life.', satisfaction: 96, workingHours: 'Mon-Fri, 9 AM - 4 PM', contact: '+91 98765 43213', worksAt: ['Gudivada Bone & Joint Center'] },
-  { id: 5, name: 'Dr. Priya', specialty: 'Neurologist', location: 'Hyderabad', rating: 4.9, imageUrl: 'https://images.pexels.com/photos/3714743/pexels-photo-3714743.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, DM (Neurology)', experience: 20, consultationFee: 1200, bio: 'Leading neurologist with extensive experience in treating complex neurological disorders.', satisfaction: 98, workingHours: 'Tue & Thu, 11 AM - 5 PM', contact: '+91 98765 43214', worksAt: ['Hyderabad Neuro Institute'] },
-  { id: 6, name: 'Dr. Anil', specialty: 'Gastroenterologist', location: 'Eluru', rating: 4.5, imageUrl: 'https://images.pexels.com/photos/6234609/pexels-photo-6234609.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, MD (Gen Med), DM (Gastro)', experience: 14, consultationFee: 850, bio: 'Focused on digestive health, providing expert care for a wide range of gastrointestinal issues.', satisfaction: 95, workingHours: 'Mon-Sat, 9 AM - 3 PM', contact: '+91 98765 43215', worksAt: ['Eluru Digestive Care'] },
-  { id: 7, name: 'Dr. Kavitha', specialty: 'Oncologist', location: 'Vijayawada', rating: 4.8, imageUrl: 'https://images.pexels.com/photos/5214995/pexels-photo-5214995.jpeg?auto=compress&cs=tinysrgb&w=400', qualification: 'MBBS, MD, DM (Oncology)', experience: 16, consultationFee: 1100, bio: 'A compassionate oncologist providing advanced cancer care and dedicated patient support.', satisfaction: 97, workingHours: 'Mon, Wed, Fri, 10 AM - 4 PM', contact: '+91 98765 43216', worksAt: ["Vijayawada Children's Hospital", 'Regional Cancer Institute'] },
+  { id: 1, name: 'Dr. Sudhakar', specialty: 'Cardiologist', location: 'Eluru', rating: 4.8, imageUrl: DOCTOR_IMAGES.sudhakar, qualification: 'MBBS, MD (Cardiology)', experience: 15, consultationFee: 800, bio: 'A dedicated cardiologist with 15 years of experience in treating heart conditions and promoting cardiac wellness.', satisfaction: 98, workingHours: 'Mon-Fri, 9 AM - 5 PM', contact: '+91 98765 43210', worksAt: ['Eluru Heart Center', 'City General Hospital'] },
+  { id: 2, name: 'Dr. Ram', specialty: 'Dermatologist', location: 'Hanuman Junction', rating: 4.9, imageUrl: DOCTOR_IMAGES.ram, qualification: 'MBBS, DNB (Dermatology)', experience: 12, consultationFee: 600, bio: 'Specializes in cosmetic and clinical dermatology, helping patients achieve healthy and radiant skin.', satisfaction: 99, workingHours: 'Tue-Sat, 10 AM - 7 PM', contact: '+91 98765 43211', worksAt: ['Hanuman Junction Skin Clinic'] },
+  { id: 3, name: 'Dr. Vaseem', specialty: 'Pediatrician', location: 'Vijayawada', rating: 4.7, imageUrl: DOCTOR_IMAGES.vaseem, qualification: 'MBBS, MD (Pediatrics)', experience: 10, consultationFee: 700, bio: 'A friendly and compassionate pediatrician committed to the health and well-being of children.', satisfaction: 97, workingHours: 'Mon-Sat, 10 AM - 6 PM', contact: '+91 98765 43212', worksAt: ["Vijayawada Children's Hospital"] },
+  { id: 4, name: 'Dr. Rajesh', specialty: 'Orthopedic Surgeon', location: 'Gudivada', rating: 4.6, imageUrl: DOCTOR_IMAGES.rajesh, qualification: 'MBBS, MS (Orthopedics)', experience: 18, consultationFee: 900, bio: 'Expert in joint replacement and sports injuries, focused on restoring mobility and quality of life.', satisfaction: 96, workingHours: 'Mon-Fri, 9 AM - 4 PM', contact: '+91 98765 43213', worksAt: ['Gudivada Bone & Joint Center'] },
+  { id: 5, name: 'Dr. Priya', specialty: 'Neurologist', location: 'Hyderabad', rating: 4.9, imageUrl: DOCTOR_IMAGES.priya, qualification: 'MBBS, DM (Neurology)', experience: 20, consultationFee: 1200, bio: 'Leading neurologist with extensive experience in treating complex neurological disorders.', satisfaction: 98, workingHours: 'Tue & Thu, 11 AM - 5 PM', contact: '+91 98765 43214', worksAt: ['Hyderabad Neuro Institute'] },
+  { id: 6, name: 'Dr. Anil', specialty: 'Gastroenterologist', location: 'Eluru', rating: 4.5, imageUrl: DOCTOR_IMAGES.anil, qualification: 'MBBS, MD (Gen Med), DM (Gastro)', experience: 14, consultationFee: 850, bio: 'Focused on digestive health, providing expert care for a wide range of gastrointestinal issues.', satisfaction: 95, workingHours: 'Mon-Sat, 9 AM - 3 PM', contact: '+91 98765 43215', worksAt: ['Eluru Digestive Care', 'Eluru Heart Center'] },
+  { id: 7, name: 'Dr. Kavitha', specialty: 'Oncologist', location: 'Vijayawada', rating: 4.8, imageUrl: DOCTOR_IMAGES.kavitha, qualification: 'MBBS, MD, DM (Oncology)', experience: 16, consultationFee: 1100, bio: 'A compassionate oncologist providing advanced cancer care and dedicated patient support.', satisfaction: 97, workingHours: 'Mon, Wed, Fri, 10 AM - 4 PM', contact: '+91 98765 43216', worksAt: ["Vijayawada Children's Hospital", 'Regional Cancer Institute'] },
 ];
 
 const HOSPITALS_DATA: Hospital[] = [
@@ -38,4 +52,450 @@ const HOSPITALS_DATA: Hospital[] = [
     rating: 4.7, 
     imageUrl: 'https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&cs=tinysrgb&w=600',
     doctors: [
-      { id: 101, name: 'Dr
+      {
+        id: 101, name: 'Dr. Sudhakar', designation: 'Chief Cardiologist', 
+        imageUrl: DOCTOR_IMAGES.sudhakar, 
+        qualification: 'MBBS, MD (Cardiology)', experience: 15, consultationFee: 800, 
+        contact: '+91 98765 43210', 
+        bio: 'A dedicated cardiologist with 15 years of experience in treating heart conditions and promoting cardiac wellness.', 
+        satisfaction: 98, workingHours: 'Mon-Fri, 9 AM - 5 PM', 
+        worksAt: ['Eluru Heart Center', 'City General Hospital']
+      },
+       { 
+        id: 102, name: 'Dr. Anil', designation: 'Gastroenterologist', 
+        imageUrl: DOCTOR_IMAGES.anil, 
+        qualification: 'MBBS, MD (Gen Med), DM (Gastro)', experience: 14, consultationFee: 850, 
+        contact: '+91 98765 43215', 
+        bio: 'Focused on digestive health, providing expert care for a wide range of gastrointestinal issues.', 
+        satisfaction: 95, workingHours: 'Mon-Sat, 9 AM - 3 PM', 
+        worksAt: ['Eluru Digestive Care', 'Eluru Heart Center']
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "Vijayawada Children's Hospital",
+    location: 'Vijayawada',
+    address: '456 Rainbow Road, Vijayawada, 520008',
+    contact: '+91 86612 34567',
+    services: ['Pediatrics', 'Neonatology', 'Pediatric Surgery', 'Vaccinations'],
+    facilities: ['Child-Friendly Wards', 'NICU', 'Play Area', 'Emergency Care'],
+    rating: 4.8,
+    imageUrl: 'https://images.pexels.com/photos/2631746/pexels-photo-2631746.jpeg?auto=compress&cs=tinysrgb&w=600',
+    doctors: [
+      {
+        id: 201, name: 'Dr. Vaseem', designation: 'Senior Pediatrician',
+        imageUrl: DOCTOR_IMAGES.vaseem,
+        qualification: 'MBBS, MD (Pediatrics)', experience: 10, consultationFee: 700,
+        contact: '+91 98765 43212',
+        bio: 'A friendly and compassionate pediatrician committed to the health and well-being of children.',
+        satisfaction: 97, workingHours: 'Mon-Sat, 10 AM - 6 PM',
+        worksAt: ["Vijayawada Children's Hospital"]
+      },
+      {
+        id: 202, name: 'Dr. Kavitha', designation: 'Pediatric Oncologist',
+        imageUrl: DOCTOR_IMAGES.kavitha,
+        qualification: 'MBBS, MD, DM (Oncology)', experience: 16, consultationFee: 1100,
+        contact: '+91 98765 43216',
+        bio: 'A compassionate oncologist providing advanced cancer care and dedicated patient support.',
+        satisfaction: 97, workingHours: 'Mon, Wed, Fri, 10 AM - 4 PM',
+        worksAt: ["Vijayawada Children's Hospital", 'Regional Cancer Institute']
+      }
+    ]
+  },
+   {
+    id: 3,
+    name: 'Hanuman Junction Skin Clinic',
+    location: 'Hanuman Junction',
+    address: '789 Glow Avenue, Hanuman Junction, 521105',
+    contact: '+91 86765 43210',
+    services: ['Dermatology', 'Cosmetology', 'Laser Hair Removal', 'Acne Treatment'],
+    facilities: ['Advanced Laser Equipment', 'Comfortable Waiting Area', 'Pharmacy'],
+    rating: 4.9,
+    imageUrl: 'https://images.pexels.com/photos/373893/pexels-photo-373893.jpeg?auto=compress&cs=tinysrgb&w=600',
+    doctors: [
+       {
+         id: 301, name: 'Dr. Ram', designation: 'Lead Dermatologist',
+         imageUrl: DOCTOR_IMAGES.ram,
+         qualification: 'MBBS, DNB (Dermatology)', experience: 12, consultationFee: 600,
+         contact: '+91 98765 43211',
+         bio: 'Specializes in cosmetic and clinical dermatology, helping patients achieve healthy and radiant skin.',
+         satisfaction: 99, workingHours: 'Tue-Sat, 10 AM - 7 PM',
+         worksAt: ['Hanuman Junction Skin Clinic']
+       }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Gudivada Bone & Joint Center',
+    location: 'Gudivada',
+    address: '101 Mobility Street, Gudivada, 521301',
+    contact: '+91 86743 21098',
+    services: ['Orthopedics', 'Joint Replacement', 'Sports Medicine', 'Physiotherapy'],
+    facilities: ['Digital X-Ray', 'Operation Theater', 'Rehabilitation Center'],
+    rating: 4.6,
+    imageUrl: 'https://images.pexels.com/photos/325682/pexels-photo-325682.jpeg?auto=compress&cs=tinysrgb&w=600',
+    doctors: [
+      {
+        id: 401, name: 'Dr. Rajesh', designation: 'Orthopedic Surgeon',
+        imageUrl: DOCTOR_IMAGES.rajesh,
+        qualification: 'MBBS, MS (Orthopedics)', experience: 18, consultationFee: 900,
+        contact: '+91 98765 43213',
+        bio: 'Expert in joint replacement and sports injuries, focused on restoring mobility and quality of life.',
+        satisfaction: 96, workingHours: 'Mon-Fri, 9 AM - 4 PM',
+        worksAt: ['Gudivada Bone & Joint Center']
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Hyderabad Neuro Institute',
+    location: 'Hyderabad',
+    address: '222 Mindspace Road, Hitech City, Hyderabad, 500081',
+    contact: '+91 40123 45678',
+    services: ['Neurology', 'Neurosurgery', 'Stroke Care', 'Epilepsy Treatment'],
+    facilities: ['Advanced Neuro-imaging', 'ICU', '24/7 Emergency', 'Research Wing'],
+    rating: 4.9,
+    imageUrl: 'https://images.pexels.com/photos/1170979/pexels-photo-1170979.jpeg?auto=compress&cs=tinysrgb&w=600',
+    doctors: [
+       {
+        id: 501, name: 'Dr. Priya', designation: 'Senior Neurologist',
+        imageUrl: DOCTOR_IMAGES.priya,
+        qualification: 'MBBS, DM (Neurology)', experience: 20, consultationFee: 1200,
+        contact: '+91 98765 43214',
+        bio: 'Leading neurologist with extensive experience in treating complex neurological disorders.',
+        satisfaction: 98, workingHours: 'Tue & Thu, 11 AM - 5 PM',
+        worksAt: ['Hyderabad Neuro Institute']
+       }
+    ]
+  },
+];
+
+const EXISTING_USER: User = {
+  id: 'user123',
+  name: 'Alex Johnson',
+  email: 'alex.j@example.com',
+  profilePictureUrl: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400',
+  hasMedicalProfile: true,
+};
+
+const NEW_USER: User = {
+    id: 'user456',
+    name: 'Maria Garcia',
+    email: 'maria.g@example.com',
+    profilePictureUrl: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
+    hasMedicalProfile: false,
+};
+
+const SAMPLE_APPOINTMENTS: Appointment[] = [
+    {
+      id: 'APT12345',
+      doctor: DOCTORS_DATA[0],
+      hospital: 'Eluru Heart Center',
+      date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      time: '10:00 AM',
+      status: 'Upcoming',
+      paymentStatus: 'Paid',
+    },
+    {
+      id: 'APT67890',
+      doctor: DOCTORS_DATA[2],
+      hospital: "Vijayawada Children's Hospital",
+      date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      time: '02:30 PM',
+      status: 'Completed',
+      paymentStatus: 'Paid',
+      doctorRating: 4,
+      serviceRating: 5
+    },
+];
+
+const SAMPLE_HEALTH_HISTORY: HealthEvent[] = [
+    {
+        id: 'EVT001',
+        type: 'Appointment',
+        date: SAMPLE_APPOINTMENTS[1].date,
+        title: 'Follow-up with Dr. Vaseem',
+        description: 'Routine check-up for the little one. Everything is on track.',
+        doctor: { name: 'Dr. Vaseem', specialty: 'Pediatrician' }
+    },
+    {
+        id: 'EVT002',
+        type: 'Prescription',
+        date: SAMPLE_APPOINTMENTS[1].date,
+        title: 'Vitamin D Supplements',
+        description: 'Prescribed Vitamin D drops for the baby.',
+        doctor: { name: 'Dr. Vaseem', specialty: 'Pediatrician' }
+    },
+     {
+        id: 'EVT003',
+        type: 'Report',
+        date: '2024-05-20',
+        title: 'Annual Blood Test Results',
+        description: 'All markers are within the normal range. Cholesterol is slightly elevated.',
+        doctor: { name: 'Dr. Sudhakar', specialty: 'Cardiologist' }
+    }
+];
+
+
+const App: React.FC = () => {
+  const [view, setView] = useState<'home' | 'appointments' | 'dashboard'>('home');
+  const [activeView, setActiveView] = useState<'doctors' | 'hospitals'>('doctors');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Modal states
+  const [selectedDoctorForBooking, setSelectedDoctorForBooking] = useState<Doctor | HospitalDoctor | null>(null);
+  const [selectedDoctorForProfile, setSelectedDoctorForProfile] = useState<Doctor | HospitalDoctor | null>(null);
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [isRegisterHospitalModalOpen, setIsRegisterHospitalModalOpen] = useState(false);
+  const [isRegisterDoctorModalOpen, setIsRegisterDoctorModalOpen] = useState(false);
+  const [isSymptomCheckerModalOpen, setIsSymptomCheckerModalOpen] = useState(false);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
+  
+  // User state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [healthHistory, setHealthHistory] = useState<HealthEvent[]>([]);
+
+  // Filtering logic
+  const filteredDoctors = useMemo(() => {
+    return DOCTORS_DATA.filter(doctor => {
+      const locationMatch = selectedLocation === 'All Locations' || doctor.location === selectedLocation;
+      const searchMatch = !searchTerm || doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) || doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase());
+      return locationMatch && searchMatch;
+    });
+  }, [selectedLocation, searchTerm]);
+
+  const filteredHospitals = useMemo(() => {
+    return HOSPITALS_DATA.filter(hospital => {
+      const locationMatch = selectedLocation === 'All Locations' || hospital.location === selectedLocation;
+      const searchMatch = !searchTerm || hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) || hospital.services.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+      return locationMatch && searchMatch;
+    });
+  }, [selectedLocation, searchTerm]);
+
+  // Handlers
+  const handleLocationFilter = (location: string) => {
+    setSelectedLocation(location);
+    setSearchTerm('');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value.length > 1) {
+        const docSuggestions = DOCTORS_DATA
+            .filter(d => d.name.toLowerCase().includes(value.toLowerCase()) || d.specialty.toLowerCase().includes(value.toLowerCase()))
+            .map(d => `${d.name} (${d.specialty})`);
+        const hospSuggestions = HOSPITALS_DATA
+            .filter(h => h.name.toLowerCase().includes(value.toLowerCase()))
+            .map(h => h.name);
+        setSearchSuggestions([...new Set([...docSuggestions, ...hospSuggestions])].slice(0, 5));
+        setShowSuggestions(true);
+    } else {
+        setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion: string) => {
+      setSearchTerm(suggestion.split(' (')[0]);
+      setShowSuggestions(false);
+  };
+
+  const handleNavigate = (newView: 'home' | 'appointments') => {
+      if (newView === 'appointments' && !isLoggedIn) {
+          setIsAuthModalOpen(true);
+          return;
+      }
+      setView(newView);
+      setSelectedHospital(null); // Close hospital details on navigation
+  };
+  
+  const handleNavigateToDashboard = () => {
+    if (isLoggedIn) {
+      setView('dashboard');
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const handleGoogleLogin = (userType: 'existing' | 'new') => {
+      const user = userType === 'existing' ? EXISTING_USER : NEW_USER;
+      setIsLoggedIn(true);
+      setCurrentUser(user);
+      setIsAuthModalOpen(false);
+
+      if (user.hasMedicalProfile) {
+          setAppointments(SAMPLE_APPOINTMENTS);
+          setHealthHistory(SAMPLE_HEALTH_HISTORY);
+          setView('home');
+      } else {
+          setIsOnboardingModalOpen(true);
+      }
+  };
+
+  const handleLogout = () => {
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      setAppointments([]);
+      setHealthHistory([]);
+      setView('home');
+  };
+
+  const handleAppointmentBooked = (appointment: Appointment) => {
+      setAppointments(prev => [...prev, appointment]);
+  };
+
+  const handleUpdateRating = (appointmentId: string, doctorRating: number, serviceRating: number) => {
+      setAppointments(prev => prev.map(app => 
+          app.id === appointmentId ? { ...app, doctorRating, serviceRating } : app
+      ));
+  };
+  
+  const handleRequestCancelAppointment = (appointmentId: string) => {
+    setAppointmentToCancel(appointmentId);
+  };
+
+  const handleConfirmCancelAppointment = () => {
+    if (appointmentToCancel) {
+      setAppointments(prev =>
+        prev.map(app =>
+          app.id === appointmentToCancel ? { ...app, status: 'Cancelled' } : app
+        )
+      );
+      setAppointmentToCancel(null);
+    }
+  };
+
+  const handleRebookAppointment = (doctor: Doctor | HospitalDoctor) => {
+    setSelectedDoctorForBooking(doctor);
+  };
+
+  const handleCloseOnboarding = () => {
+      setIsOnboardingModalOpen(false);
+      if(currentUser){
+          setCurrentUser({...currentUser, hasMedicalProfile: true});
+          setView('home');
+      }
+  }
+
+  const renderHomePage = () => (
+    <>
+      <HeroSection 
+        onLocationFilter={handleLocationFilter} 
+        selectedLocation={selectedLocation} 
+        onOpenSymptomChecker={() => setIsSymptomCheckerModalOpen(true)}
+      />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {selectedHospital ? (
+          <HospitalDetails 
+            hospital={selectedHospital} 
+            onClose={() => setSelectedHospital(null)}
+            onViewDoctorProfile={(doctor) => setSelectedDoctorForProfile(doctor)}
+          />
+        ) : (
+          <>
+             <div className="mb-10 max-w-2xl mx-auto">
+              <div className="relative">
+                  <input
+                      type="text"
+                      placeholder="Search for doctors, hospitals, or specialties..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      onFocus={() => setShowSuggestions(searchTerm.length > 1)}
+                      className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <SearchSuggestions 
+                      suggestions={searchSuggestions}
+                      show={showSuggestions}
+                      onSelect={handleSuggestionSelect}
+                      onClose={() => setShowSuggestions(false)}
+                  />
+              </div>
+            </div>
+          
+            <div className="flex justify-center mb-8 bg-gray-100 rounded-full p-1 max-w-xs mx-auto">
+                <button
+                    onClick={() => setActiveView('doctors')}
+                    className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'doctors' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
+                >
+                    Doctors
+                </button>
+                <button
+                    onClick={() => setActiveView('hospitals')}
+                    className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'hospitals' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
+                >
+                    Hospitals
+                </button>
+            </div>
+
+            {activeView === 'doctors' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {filteredDoctors.map(doctor => (
+                    <DoctorCard key={doctor.id} doctor={doctor} onBook={() => setSelectedDoctorForBooking(doctor)} onViewProfile={() => setSelectedDoctorForProfile(doctor)} />
+                ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredHospitals.map(hospital => (
+                    <HospitalCard key={hospital.id} hospital={hospital} onSelect={() => setSelectedHospital(hospital)} />
+                ))}
+                </div>
+            )}
+          </>
+        )}
+      </main>
+    </>
+  );
+
+  const currentNavView = view === 'home' || view === 'dashboard' ? 'home' : 'appointments';
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar
+        onNavigate={handleNavigate}
+        onNavigateToDashboard={handleNavigateToDashboard}
+        activeView={currentNavView}
+        isLoggedIn={isLoggedIn}
+        user={currentUser}
+        onLoginClick={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
+        onOpenRegisterHospital={() => setIsRegisterHospitalModalOpen(true)}
+        onOpenRegisterDoctor={() => setIsRegisterDoctorModalOpen(true)}
+      />
+      <div className="flex-grow">
+        {view === 'home' && renderHomePage()}
+        {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('appointments')} />}
+        {view === 'appointments' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}
+      </div>
+      <Footer />
+
+      {/* Modals */}
+      {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => setView('appointments')} />}
+      {selectedDoctorForProfile && <DoctorProfileModal doctor={selectedDoctorForProfile} onClose={() => setSelectedDoctorForProfile(null)} onBook={(doc) => { setSelectedDoctorForProfile(null); setSelectedDoctorForBooking(doc); }} />}
+      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onGoogleLogin={handleGoogleLogin} />}
+      {isOnboardingModalOpen && currentUser && <OnboardingModal user={currentUser} onClose={handleCloseOnboarding} />}
+      {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
+      {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
+      {isSymptomCheckerModalOpen && <SymptomCheckerModal onClose={() => setIsSymptomCheckerModalOpen(false)} />}
+      <ConfirmationModal
+        isOpen={!!appointmentToCancel}
+        onClose={() => setAppointmentToCancel(null)}
+        onConfirm={handleConfirmCancelAppointment}
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment? This action cannot be undone."
+        confirmButtonText="Yes, Cancel"
+      />
+      <Chatbot />
+    </div>
+  );
+};
+
+export default App;
