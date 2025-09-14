@@ -386,74 +386,76 @@ const App: React.FC = () => {
       }
   }
 
-  const renderHomePage = () => (
-    <>
-      <HeroSection 
-        onLocationFilter={handleLocationFilter} 
-        selectedLocation={selectedLocation} 
-        onOpenSymptomChecker={() => setIsSymptomCheckerModalOpen(true)}
-      />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {selectedHospital ? (
-          <HospitalDetails 
-            hospital={selectedHospital} 
-            onClose={() => setSelectedHospital(null)}
-            onViewDoctorProfile={(doctor) => setSelectedDoctorForProfile(doctor)}
-          />
-        ) : (
-          <>
-             <div className="mb-10 max-w-2xl mx-auto">
-              <div className="relative">
-                  <input
-                      type="text"
-                      placeholder="Search for doctors, hospitals, or specialties..."
-                      value={searchTerm}
-                      onChange={handleSearchChange}
-                      onFocus={() => setShowSuggestions(searchTerm.length > 1)}
-                      className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                  <SearchSuggestions 
-                      suggestions={searchSuggestions}
-                      show={showSuggestions}
-                      onSelect={handleSuggestionSelect}
-                      onClose={() => setShowSuggestions(false)}
-                  />
-              </div>
-            </div>
-          
-            <div className="flex justify-center mb-8 bg-gray-100 rounded-full p-1 max-w-xs mx-auto">
-                <button
-                    onClick={() => setActiveView('doctors')}
-                    className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'doctors' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
-                >
-                    Doctors
-                </button>
-                <button
-                    onClick={() => setActiveView('hospitals')}
-                    className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'hospitals' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
-                >
-                    Hospitals
-                </button>
-            </div>
+  const renderHomePage = () => {
+    if (selectedHospital) {
+      return (
+        <HospitalDetails 
+          hospital={selectedHospital} 
+          onClose={() => setSelectedHospital(null)}
+          onViewDoctorProfile={(doctor) => setSelectedDoctorForProfile(doctor)}
+        />
+      );
+    }
 
-            {activeView === 'doctors' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredDoctors.map(doctor => (
-                    <DoctorCard key={doctor.id} doctor={doctor} onBook={() => setSelectedDoctorForBooking(doctor)} onViewProfile={() => setSelectedDoctorForProfile(doctor)} />
-                ))}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredHospitals.map(hospital => (
-                    <HospitalCard key={hospital.id} hospital={hospital} onSelect={() => setSelectedHospital(hospital)} />
-                ))}
-                </div>
-            )}
-          </>
-        )}
-      </main>
-    </>
-  );
+    return (
+      <>
+        <HeroSection 
+          onLocationFilter={handleLocationFilter} 
+          selectedLocation={selectedLocation} 
+          onOpenSymptomChecker={() => setIsSymptomCheckerModalOpen(true)}
+        />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-10 max-w-2xl mx-auto">
+            <div className="relative">
+                <input
+                    type="text"
+                    placeholder="Search for doctors, hospitals, or specialties..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    onFocus={() => setShowSuggestions(searchTerm.length > 1)}
+                    className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <SearchSuggestions 
+                    suggestions={searchSuggestions}
+                    show={showSuggestions}
+                    onSelect={handleSuggestionSelect}
+                    onClose={() => setShowSuggestions(false)}
+                />
+            </div>
+          </div>
+        
+          <div className="flex justify-center mb-8 bg-gray-100 rounded-full p-1 max-w-xs mx-auto">
+              <button
+                  onClick={() => setActiveView('doctors')}
+                  className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'doctors' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
+              >
+                  Doctors
+              </button>
+              <button
+                  onClick={() => setActiveView('hospitals')}
+                  className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'hospitals' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
+              >
+                  Hospitals
+              </button>
+          </div>
+
+          {activeView === 'doctors' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredDoctors.map(doctor => (
+                  <DoctorCard key={doctor.id} doctor={doctor} onBook={() => setSelectedDoctorForBooking(doctor)} onViewProfile={() => setSelectedDoctorForProfile(doctor)} />
+              ))}
+              </div>
+          ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredHospitals.map(hospital => (
+                  <HospitalCard key={hospital.id} hospital={hospital} onSelect={() => setSelectedHospital(hospital)} />
+              ))}
+              </div>
+          )}
+        </main>
+      </>
+    );
+  };
 
   const currentNavView = view === 'home' || view === 'dashboard' ? 'home' : 'appointments';
 
