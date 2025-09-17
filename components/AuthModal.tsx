@@ -1,26 +1,99 @@
+
 import React, { useState } from 'react';
 
 interface AuthModalProps {
     onClose: () => void;
-    onGoogleLogin: (userType: 'existing' | 'new') => void;
+    onLogin: (email: string) => boolean;
+    onSignUp: (name: string, email: string) => 'success' | 'exists';
 }
 
 type AuthTab = 'signIn' | 'signUp';
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onGoogleLogin }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin, onSignUp }) => {
     const [activeTab, setActiveTab] = useState<AuthTab>('signIn');
 
-    const GoogleButton = ({ children }: { children: React.ReactNode }) => (
-        <button onClick={() => onGoogleLogin('existing')} className="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-            <svg className="w-5 h-5 mr-3" viewBox="0 0 48 48">
-                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
-                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
-                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
-                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C43.021,36.251,44,30.651,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-            </svg>
-            {children}
-        </button>
-    );
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleTabChange = (tab: AuthTab) => {
+        setActiveTab(tab);
+        setName('');
+        setEmail('');
+        setPassword('');
+        setError('');
+    };
+
+    const handleSignInSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        if (!email || !password) {
+            setError('Please enter both email and password.');
+            return;
+        }
+        const loginSuccess = onLogin(email);
+        if (!loginSuccess) {
+            setError('User not found. Please check your email or sign up.');
+        }
+    };
+
+    const handleSignUpSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        if (!name.trim() || !email.trim() || !password.trim()) {
+            setError('Please fill in all fields.');
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+        
+        const signUpResult = onSignUp(name, email);
+        if (signUpResult === 'exists') {
+            setError('An account with this email already exists. Please sign in.');
+        }
+    };
+
+    const formToRender = activeTab === 'signIn' 
+        ? (
+            <form onSubmit={handleSignInSubmit} className="space-y-4">
+                <div>
+                    <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="email-signin">Email</label>
+                    <input type="email" id="email-signin" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="password-signin">Password</label>
+                    <input type="password" id="password-signin" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
+                    Sign In
+                </button>
+            </form>
+        ) : (
+            <form onSubmit={handleSignUpSubmit} className="space-y-4">
+                 <div>
+                    <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="name-signup">Full Name</label>
+                    <input type="text" id="name-signup" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="email-signup">Email</label>
+                    <input type="email" id="email-signup" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="password-signup">Password</label>
+                    <input type="password" id="password-signup" placeholder="Password (min. 6 characters)" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
+                    Create Account
+                </button>
+            </form>
+        );
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
@@ -36,49 +109,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onGoogleLogin }) 
                         {activeTab === 'signIn' ? 'Sign in to manage your appointments.' : 'Sign up to get started.'}
                     </p>
                     
-                    <div className="mb-6">
-                        <GoogleButton>Continue with Google</GoogleButton>
+                     <div className="flex border-b border-gray-200 text-center mb-6">
+                        <button onClick={() => handleTabChange('signIn')} className={`flex-1 py-2 text-sm font-medium transition-colors ${activeTab === 'signIn' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                            Sign In
+                        </button>
+                        <button onClick={() => handleTabChange('signUp')} className={`flex-1 py-2 text-sm font-medium transition-colors ${activeTab === 'signUp' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                            Sign Up
+                        </button>
                     </div>
 
-                    <div className="relative mb-6">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300"></div>
+                    {error && (
+                        <div className="bg-red-50 border-l-4 border-red-400 p-3 mb-4 text-sm text-red-700 rounded-r-lg">
+                            {error}
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">Or {activeTab === 'signIn' ? 'sign in' : 'sign up'} with email</span>
-                        </div>
+                    )}
+                    
+                    {formToRender}
+
+                    <div className="text-xs text-gray-500 mt-4 bg-gray-50 p-3 rounded-lg text-center">
+                        <p className="font-semibold">Demo Info:</p>
+                        <p>To sign in, you can use the following existing accounts:</p>
+                        <ul className="list-disc list-inside text-left pl-4 mt-1">
+                            <li><span className="font-mono">alex.j@example.com</span> (Existing profile)</li>
+                            <li><span className="font-mono">maria.g@example.com</span> (New user onboarding)</li>
+                        </ul>
+                         <p className="mt-2">Any password will work. You can also sign up with a new email.</p>
                     </div>
-
-                    <form className="space-y-4">
-                        {activeTab === 'signUp' && (
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="name">Full Name</label>
-                                <input type="text" id="name" placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
-                            </div>
-                        )}
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="email">Email</label>
-                            <input type="email" id="email" placeholder="Email Address" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 sr-only" htmlFor="password">Password</label>
-                            <input type="password" id="password" placeholder="Password" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"/>
-                        </div>
-
-                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg">
-                            {activeTab === 'signIn' ? 'Sign In' : 'Create Account'}
-                        </button>
-                    </form>
-
-                    <p className="text-center text-sm text-gray-600 mt-6">
-                        {activeTab === 'signIn' ? "Don't have an account?" : "Already have an account?"}
-                        <button onClick={() => setActiveTab(activeTab === 'signIn' ? 'signUp' : 'signIn')} className="font-medium text-blue-600 hover:text-blue-500 ml-1">
-                            {activeTab === 'signIn' ? "Sign Up" : "Sign In"}
-                        </button>
-                    </p>
-                    <p className="text-center text-xs text-gray-500 mt-4">
-                        This is a demo. Try "Continue with Google" to simulate login for an <button onClick={() => onGoogleLogin('new')} className="font-semibold text-blue-500 underline">new user</button> or an <button onClick={() => onGoogleLogin('existing')} className="font-semibold text-blue-500 underline">existing user</button>.
-                    </p>
                 </div>
             </div>
         </div>

@@ -348,19 +348,49 @@ const App: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = (userType: 'existing' | 'new') => {
-      const user = userType === 'existing' ? EXISTING_USER : NEW_USER;
-      setIsLoggedIn(true);
-      setCurrentUser(user);
-      setIsAuthModalOpen(false);
+  const handleAuthSuccess = (user: User) => {
+    setIsLoggedIn(true);
+    setCurrentUser(user);
+    setIsAuthModalOpen(false);
 
-      if (user.hasMedicalProfile) {
-          setAppointments(SAMPLE_APPOINTMENTS);
-          setHealthHistory(SAMPLE_HEALTH_HISTORY);
-          setView('home');
-      } else {
-          setIsOnboardingModalOpen(true);
+    if (user.hasMedicalProfile) {
+        setAppointments(SAMPLE_APPOINTMENTS);
+        setHealthHistory(SAMPLE_HEALTH_HISTORY);
+        setView('home');
+    } else {
+        setAppointments([]);
+        setHealthHistory([]);
+        setIsOnboardingModalOpen(true);
+    }
+  };
+
+  const handleLogin = (email: string): boolean => {
+    if (email.toLowerCase() === EXISTING_USER.email.toLowerCase()) {
+        handleAuthSuccess(EXISTING_USER);
+        return true;
+    }
+    if (email.toLowerCase() === NEW_USER.email.toLowerCase()) {
+        handleAuthSuccess(NEW_USER);
+        return true;
+    }
+    return false;
+  };
+
+  const handleSignUp = (name: string, email: string): 'success' | 'exists' => {
+      if (email.toLowerCase() === EXISTING_USER.email.toLowerCase() || email.toLowerCase() === NEW_USER.email.toLowerCase()) {
+          return 'exists';
       }
+
+      const newUser: User = {
+          id: `user_${Date.now()}`,
+          name: name,
+          email: email,
+          profilePictureUrl: `https://images.pexels.com/photos/1007018/pexels-photo-1007018.jpeg?auto=compress&cs=tinysrgb&w=400`,
+          hasMedicalProfile: false,
+      };
+
+      handleAuthSuccess(newUser);
+      return 'success';
   };
 
   const handleLogout = () => {
@@ -567,7 +597,7 @@ const App: React.FC = () => {
       {/* Modals */}
       {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => setView('appointments')} />}
       {selectedDoctorForProfile && <DoctorProfileModal doctor={selectedDoctorForProfile} onClose={() => setSelectedDoctorForProfile(null)} onBook={(doc) => { setSelectedDoctorForProfile(null); setSelectedDoctorForBooking(doc); }} />}
-      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onGoogleLogin={handleGoogleLogin} />}
+      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onLogin={handleLogin} onSignUp={handleSignUp} />}
       {isOnboardingModalOpen && currentUser && <OnboardingModal user={currentUser} onClose={handleCloseOnboarding} />}
       {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
       {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
