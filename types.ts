@@ -74,3 +74,31 @@ export interface HealthEvent {
     specialty: string;
   };
 }
+
+export interface Medicine {
+  id: string;
+  name: string;
+  category: 'Pain Relief' | 'Vitamins & Supplements' | 'Cold & Flu' | 'Digestive Health' | 'First Aid';
+  description: string;
+  price: number;
+  imageUrl: string;
+  requiresPrescription: boolean;
+}
+
+export interface CartItem {
+  medicineId: string;
+  quantity: number;
+}
+
+export interface DeliveryDetails {
+  name: string;
+  address: string;
+  contact: string;
+}
+
+export interface Order extends DeliveryDetails {
+  id: string;
+  items: CartItem[];
+  total: number;
+  paymentMethod: 'Online Payment' | 'Cash on Delivery';
+}

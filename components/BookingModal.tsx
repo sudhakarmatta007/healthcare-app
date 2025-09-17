@@ -45,6 +45,41 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
     const daysInMonth = useMemo(() => new Date(currentYear, currentMonth + 1, 0).getDate(), [currentMonth, currentYear]);
     const firstDayOfMonth = useMemo(() => new Date(currentYear, currentMonth, 1).getDay(), [currentMonth, currentYear]);
 
+    const unavailableSlots = useMemo(() => {
+        if (!selectedDate) return [];
+
+        // A simple hashing function to create a pseudo-random but deterministic number
+        const simpleHash = (str: string): number => {
+            let hash = 0;
+            if (str.length === 0) return hash;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        };
+
+        const dateString = selectedDate.toISOString().split('T')[0];
+        const seed = `${doctor.id}-${dateString}`;
+        const hash = simpleHash(seed);
+
+        const allSlots = [...timeSlots.morning, ...timeSlots.afternoon, ...timeSlots.evening];
+        const unavailable = new Set<string>();
+
+        // Make a variable number of slots unavailable (e.g., 30-50% of slots)
+        const numUnavailable = Math.floor(allSlots.length * (0.3 + ((hash % 21) / 100))); // 30% to 50%
+
+        for (let i = 0; i < numUnavailable; i++) {
+            // Use a prime number to jump around the array for better distribution
+            const index = (hash + i * 31) % allSlots.length;
+            unavailable.add(allSlots[index]);
+        }
+        
+        return Array.from(unavailable);
+    }, [selectedDate, doctor.id]);
+
+
     const handleDateSelect = (day: number) => {
         const date = new Date(currentYear, currentMonth, day);
         if (date >= startOfToday) {
@@ -168,31 +203,53 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                 <p className="text-gray-500 mb-6">{selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                 
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                    {(Object.keys(timeSlots) as TimeSession[]).map(session => (
-                        <button
-                            key={session}
-                            onClick={() => setSelectedSession(session)}
-                            className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${selectedSession === session ? 'bg-blue-500 text-white border-blue-500 shadow-lg' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-blue-300 hover:text-gray-800'}`}
-                        >
-                            {sessionIcons[session]}
-                            <p className="mt-2 font-semibold text-sm capitalize">{session}</p>
-                        </button>
-                    ))}
+                    {(Object.keys(timeSlots) as TimeSession[]).map(session => {
+                        const isSessionFullyBooked = timeSlots[session].every(time => unavailableSlots.includes(time));
+                        
+                        return (
+                            <button
+                                key={session}
+                                onClick={() => setSelectedSession(session)}
+                                disabled={isSessionFullyBooked}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${
+                                    isSessionFullyBooked
+                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                        : selectedSession === session
+                                            ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
+                                            : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-blue-300 hover:text-gray-800'
+                                }`}
+                            >
+                                {sessionIcons[session]}
+                                <p className="mt-2 font-semibold text-sm capitalize">{session}</p>
+                                {isSessionFullyBooked && <span className="text-xs mt-1 font-normal">(No slots)</span>}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {selectedSession && (
                     <div className="animate-fade-in-down">
                         <p className="font-semibold text-gray-700 mb-3 capitalize">{selectedSession} Slots</p>
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {timeSlots[selectedSession].map(time => (
-                                <button
-                                    key={time}
-                                    onClick={() => setSelectedTime(time)}
-                                    className={`p-3 rounded-lg border text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${selectedTime === time ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105' : 'border-gray-300 text-gray-700 bg-white hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600'}`}
-                                >
-                                    {time}
-                                </button>
-                            ))}
+                            {timeSlots[selectedSession].map(time => {
+                                const isUnavailable = unavailableSlots.includes(time);
+                                return (
+                                    <button
+                                        key={time}
+                                        onClick={() => setSelectedTime(time)}
+                                        disabled={isUnavailable}
+                                        className={`p-3 rounded-lg border text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${
+                                            isUnavailable
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through'
+                                                : selectedTime === time 
+                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105' 
+                                                    : 'border-gray-300 text-gray-700 bg-white hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600'
+                                        }`}
+                                    >
+                                        {time}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

@@ -18,7 +18,11 @@ import { SearchSuggestions } from './components/SearchSuggestions';
 import { SymptomCheckerModal } from './components/SymptomCheckerModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { Chatbot } from './components/Chatbot';
-import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent } from './types';
+import { MedicinesPage } from './components/MedicinesPage';
+import { CartPage } from './components/CartPage';
+import { CheckoutModal } from './components/CheckoutModal';
+import { OrderConfirmationModal } from './components/OrderConfirmationModal';
+import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
 
 const DOCTOR_IMAGES = {
   sudhakar: 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=600',
@@ -171,6 +175,17 @@ const HOSPITALS_DATA: Hospital[] = [
   },
 ];
 
+const MEDICINES_DATA: Medicine[] = [
+  { id: 'med1', name: 'Paracetamol 500mg', category: 'Pain Relief', description: 'Effective relief for fever, headaches, and body aches. 10 tablets.', price: 25, imageUrl: 'https://images.pexels.com/photos/4210610/pexels-photo-4210610.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med2', name: 'Vitamin C 1000mg', category: 'Vitamins & Supplements', description: 'Boosts immunity and acts as a powerful antioxidant. 30 effervescent tablets.', price: 250, imageUrl: 'https://images.pexels.com/photos/4047076/pexels-photo-4047076.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med3', name: 'Herbal Cough Syrup', category: 'Cold & Flu', description: 'Soothing relief for cough and sore throat. 100ml bottle.', price: 120, imageUrl: 'https://images.pexels.com/photos/5951859/pexels-photo-5951859.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med4', name: 'Antacid Gel', category: 'Digestive Health', description: 'Provides fast relief from heartburn and indigestion. 170ml bottle.', price: 90, imageUrl: 'https://images.pexels.com/photos/8438069/pexels-photo-8438069.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med5', name: 'Medicated Band-Aids', category: 'First Aid', description: 'Antiseptic and waterproof bandages for cuts and scrapes. Pack of 50.', price: 75, imageUrl: 'https://images.pexels.com/photos/5793952/pexels-photo-5793952.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med6', name: 'Multivitamin Tablets', category: 'Vitamins & Supplements', description: 'A daily dose of essential vitamins and minerals for overall health. 60 tablets.', price: 450, imageUrl: 'https://images.pexels.com/photos/4725667/pexels-photo-4725667.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+  { id: 'med7', name: 'Ibuprofen 400mg', category: 'Pain Relief', description: 'Reduces inflammation and provides relief from moderate pain. 15 tablets.', price: 40, imageUrl: 'https://images.pexels.com/photos/3807379/pexels-photo-3807379.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: true },
+  { id: 'med8', name: 'Cetirizine 10mg', category: 'Cold & Flu', description: 'Anti-allergic tablets for relief from cold symptoms and allergies. 10 tablets.', price: 30, imageUrl: 'https://images.pexels.com/photos/4210611/pexels-photo-4210611.jpeg?auto=compress&cs=tinysrgb&w=600', requiresPrescription: false },
+];
+
 const EXISTING_USER: User = {
   id: 'user123',
   name: 'Alex Johnson',
@@ -239,7 +254,7 @@ const SAMPLE_HEALTH_HISTORY: HealthEvent[] = [
 
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'home' | 'appointments' | 'dashboard'>('home');
+  const [view, setView] = useState<'home' | 'appointments' | 'dashboard' | 'medicines' | 'cart'>('home');
   const [activeView, setActiveView] = useState<'doctors' | 'hospitals'>('doctors');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [searchTerm, setSearchTerm] = useState('');
@@ -262,6 +277,12 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [healthHistory, setHealthHistory] = useState<HealthEvent[]>([]);
+  
+  // Cart & Checkout state
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
 
   // Filtering logic
   const filteredDoctors = useMemo(() => {
@@ -290,7 +311,7 @@ const App: React.FC = () => {
     const value = e.target.value;
     setSearchTerm(value);
 
-    if (value.length > 1) {
+    if (value.length > 1 && view === 'home') {
         const docSuggestions = DOCTORS_DATA
             .filter(d => d.name.toLowerCase().includes(value.toLowerCase()) || d.specialty.toLowerCase().includes(value.toLowerCase()))
             .map(d => `${d.name} (${d.specialty})`);
@@ -309,13 +330,14 @@ const App: React.FC = () => {
       setShowSuggestions(false);
   };
 
-  const handleNavigate = (newView: 'home' | 'appointments') => {
-      if (newView === 'appointments' && !isLoggedIn) {
+  const handleNavigate = (newView: 'home' | 'appointments' | 'medicines' | 'cart') => {
+      if ((newView === 'appointments' || newView === 'medicines' || newView === 'cart') && !isLoggedIn) {
           setIsAuthModalOpen(true);
           return;
       }
       setView(newView);
       setSelectedHospital(null); // Close hospital details on navigation
+      if(newView !== 'home') setSearchTerm(''); // Clear search term when leaving home
   };
   
   const handleNavigateToDashboard = () => {
@@ -346,6 +368,7 @@ const App: React.FC = () => {
       setCurrentUser(null);
       setAppointments([]);
       setHealthHistory([]);
+      setCart([]);
       setView('home');
   };
 
@@ -385,6 +408,64 @@ const App: React.FC = () => {
           setView('home');
       }
   }
+
+  // Cart & Checkout Handlers
+  const handleAddToCart = (medicineId: string) => {
+    if (!isLoggedIn) {
+        setIsAuthModalOpen(true);
+        return;
+    }
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.medicineId === medicineId);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.medicineId === medicineId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevCart, { medicineId, quantity: 1 }];
+    });
+  };
+
+  const handleUpdateCartQuantity = (medicineId: string, quantity: number) => {
+    if (quantity < 1) {
+      handleRemoveFromCart(medicineId);
+      return;
+    }
+    setCart(prevCart =>
+      prevCart.map(item => (item.medicineId === medicineId ? { ...item, quantity } : item))
+    );
+  };
+
+  const handleRemoveFromCart = (medicineId: string) => {
+    setCart(prevCart => prevCart.filter(item => item.medicineId !== medicineId));
+  };
+
+  const handleProceedToCheckout = () => {
+      setIsCheckoutModalOpen(true);
+  };
+
+  const handlePlaceOrder = (details: DeliveryDetails, paymentMethod: 'Online Payment' | 'Cash on Delivery') => {
+    const subtotal = cart.reduce((total, item) => {
+        const medicine = MEDICINES_DATA.find(m => m.id === item.medicineId);
+        return total + (medicine ? medicine.price * item.quantity : 0);
+    }, 0);
+    const deliveryFee = subtotal > 0 ? 50 : 0;
+    const total = subtotal + deliveryFee;
+
+    const newOrder: Order = {
+        id: `ORD${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        items: cart,
+        total,
+        paymentMethod,
+        ...details
+    };
+
+    setConfirmedOrder(newOrder);
+    setIsCheckoutModalOpen(false);
+    setIsConfirmationModalOpen(true);
+    setCart([]);
+  };
+
 
   const renderHomePage = () => {
     if (selectedHospital) {
@@ -457,25 +538,29 @@ const App: React.FC = () => {
     );
   };
 
-  const currentNavView = view === 'home' || view === 'dashboard' ? 'home' : 'appointments';
+  const cartItemCount = useMemo(() => cart.reduce((total, item) => total + item.quantity, 0), [cart]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar
         onNavigate={handleNavigate}
         onNavigateToDashboard={handleNavigateToDashboard}
-        activeView={currentNavView}
+        activeView={view}
         isLoggedIn={isLoggedIn}
         user={currentUser}
         onLoginClick={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenRegisterHospital={() => setIsRegisterHospitalModalOpen(true)}
         onOpenRegisterDoctor={() => setIsRegisterDoctorModalOpen(true)}
+        cartItemCount={cartItemCount}
+        onCartClick={() => handleNavigate('cart')}
       />
       <div className="flex-grow">
         {view === 'home' && renderHomePage()}
         {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('appointments')} />}
         {view === 'appointments' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}
+        {view === 'medicines' && <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />}
+        {view === 'cart' && <CartPage cartItems={cart} medicines={MEDICINES_DATA} onUpdateQuantity={handleUpdateCartQuantity} onRemoveItem={handleRemoveFromCart} onProceedToCheckout={handleProceedToCheckout} onContinueShopping={() => setView('medicines')} />}
       </div>
       <Footer />
 
@@ -487,6 +572,23 @@ const App: React.FC = () => {
       {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
       {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
       {isSymptomCheckerModalOpen && <SymptomCheckerModal onClose={() => setIsSymptomCheckerModalOpen(false)} />}
+      
+      {isCheckoutModalOpen && <CheckoutModal
+        cartItems={cart}
+        medicines={MEDICINES_DATA}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        onPlaceOrder={handlePlaceOrder}
+      />}
+
+      {isConfirmationModalOpen && confirmedOrder && <OrderConfirmationModal
+        order={confirmedOrder}
+        onClose={() => {
+            setIsConfirmationModalOpen(false);
+            setConfirmedOrder(null);
+            setView('medicines');
+        }}
+      />}
+
       <ConfirmationModal
         isOpen={!!appointmentToCancel}
         onClose={() => setAppointmentToCancel(null)}
