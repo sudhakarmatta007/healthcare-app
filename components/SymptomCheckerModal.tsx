@@ -1,6 +1,4 @@
-
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
 
 interface SymptomCheckerModalProps {
     onClose: () => void;
@@ -32,19 +30,26 @@ export const SymptomCheckerModal: React.FC<SymptomCheckerModalProps> = ({ onClos
         setResult('');
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: `My symptoms are: ${symptoms}`,
-                config: {
-                    systemInstruction: `You are a helpful AI assistant for a healthcare app. Your goal is to provide preliminary information based on user-described symptoms. You are NOT a doctor and you must NEVER provide a diagnosis. Your response should always start with a clear disclaimer: '### Important Disclaimer\\n**This is not medical advice. Please consult a professional healthcare provider for any health concerns.**' After the disclaimer, you can suggest potential causes for the symptoms and recommend the type of specialist a user might consider seeing (e.g., 'Cardiologist', 'Dermatologist'). Frame your suggestions as possibilities, not certainties. Use phrases like 'This could be related to...' or 'It might be helpful to see a...'. Do not provide treatment plans or prescribe medication. Keep the response concise, easy to understand, and structured with clear headings like '### Possible Considerations' and '### Recommended Specialist'.`,
-                }
+            // The URL for your backend. Use an environment variable for production.
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/symptom-check';
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ symptoms }),
             });
 
-            setResult(response.text);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            setResult(data.reply);
 
         } catch (e) {
-            console.error(e);
+            console.error("Error fetching from backend:", e);
             setError('Sorry, we couldn\'t get a response. Please try again later.');
         } finally {
             setIsLoading(false);

@@ -1,6 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Chat } from '@google/genai';
 
 interface Message {
     sender: 'user' | 'ai';
@@ -17,24 +15,7 @@ export const Chatbot: React.FC = () => {
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [chat, setChat] = useState<Chat | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const chatSession = ai.chats.create({
-                model: 'gemini-2.5-flash',
-                config: {
-                    systemInstruction: "You are a friendly and helpful AI assistant for a healthcare appointment booking app called 'Health Connect'. Your primary goal is to assist users with their health-related queries and guide them through the app. KEY RULES: 1. **Disclaimer First**: ALWAYS start your first response in any conversation with this exact disclaimer: 'Please remember, I am an AI assistant and not a medical professional. For any medical advice, please consult with a qualified doctor.' 2. **Do NOT provide medical diagnoses or treatment plans**. You can provide general health information, but you must refuse to diagnose. 3. **Guide users within the app**: You can help users find doctors by suggesting they use the search bar and location filters on the homepage. You can explain how to book an appointment (click 'Book Appointment' on a doctor's card). 4. **Keep it conversational and encouraging**.",
-                },
-            });
-            setChat(chatSession);
-        } catch (error) {
-            console.error("Failed to initialize Gemini AI:", error);
-            setMessages(prev => [...prev, { sender: 'ai', text: "I'm sorry, the chat service is currently unavailable." }]);
-        }
-    }, []);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,7 +25,7 @@ export const Chatbot: React.FC = () => {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!inputValue.trim() || isLoading || !chat) return;
+        if (!inputValue.trim() || isLoading) return;
 
         const userMessage: Message = { sender: 'user', text: inputValue };
         setMessages(prev => [...prev, userMessage]);
@@ -52,17 +33,43 @@ export const Chatbot: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const response = await chat.sendMessage({ message: userMessage.text });
-            const aiMessage: Message = { sender: 'ai', text: response.text };
+            // The URL for your backend. Use an environment variable for production.
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/chat';
+
+            // Prepare the message history to send to the backend for context
+            const history = messages.map(msg => ({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }]
+            }));
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    message: userMessage.text,
+                    history: history
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const aiMessage: Message = { sender: 'ai', text: data.reply };
             setMessages(prev => [...prev, aiMessage]);
+
         } catch (error) {
-            console.error("Error sending message to Gemini:", error);
+            console.error("Error fetching from backend:", error);
             const errorMessage: Message = { sender: 'ai', text: "I'm sorry, I'm having trouble connecting right now. Please try again later." };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
         }
     };
+
 
     const ChatBubble: React.FC<{ message: Message }> = ({ message }) => {
         const isUser = message.sender === 'user';
@@ -126,12 +133,12 @@ export const Chatbot: React.FC = () => {
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder="Ask a question..."
                             className="w-full px-4 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            disabled={isLoading || !chat}
+                            disabled={isLoading}
                             aria-label="Chat input"
                         />
                         <button
                             type="submit"
-                            disabled={isLoading || !inputValue.trim() || !chat}
+                            disabled={isLoading || !inputValue.trim()}
                             className="bg-blue-600 text-white rounded-full p-2.5 flex-shrink-0 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                             aria-label="Send message"
                         >
