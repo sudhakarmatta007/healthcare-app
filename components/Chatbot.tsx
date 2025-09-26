@@ -33,14 +33,8 @@ export const Chatbot: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // The URL for your backend. Use an environment variable for production.
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/chat';
-
-            // Prepare the message history to send to the backend for context
-            const history = messages.map(msg => ({
-                role: msg.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
-            }));
+            // Use a relative path to call the Vercel serverless function
+            const apiUrl = '/api/chat';
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -49,7 +43,6 @@ export const Chatbot: React.FC = () => {
                 },
                 body: JSON.stringify({ 
                     message: userMessage.text,
-                    history: history
                 }),
             });
 
