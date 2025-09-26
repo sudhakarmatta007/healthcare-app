@@ -1,5 +1,5 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https:/"C:\Users\sudha\OneDrive\Pictures\Screenshots\Screenshot (20).png" />
+<img width="1200" height="475" alt="GHBanner" src="C:\Users\sudha\OneDrive\Pictures\Screenshots\Screenshot (20).png" />
 </div>
 
 
