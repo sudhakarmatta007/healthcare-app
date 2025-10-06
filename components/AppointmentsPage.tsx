@@ -63,8 +63,8 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
     }, [appointments]);
 
     return (
-        <div className="bg-gray-50 min-h-screen pt-28">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="bg-gray-50 min-h-screen">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <header className="mb-10">
                     <h1 className="text-4xl font-bold text-gray-900">Your Appointments</h1>
                     <p className="mt-2 text-lg text-gray-600">Manage your upcoming and past appointments.</p>

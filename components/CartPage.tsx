@@ -49,7 +49,7 @@ export const CartPage: React.FC<CartPageProps> = ({ cartItems, medicines, onUpda
 
     if (cartItems.length === 0) {
         return (
-            <div className="bg-gray-50 min-h-screen pt-28">
+            <div className="bg-gray-50 min-h-screen">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
                     <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     <h1 className="mt-4 text-2xl font-bold text-gray-800">Your cart is empty</h1>
@@ -66,8 +66,8 @@ export const CartPage: React.FC<CartPageProps> = ({ cartItems, medicines, onUpda
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen pt-28">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="bg-gray-50 min-h-screen">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <header className="mb-10">
                     <h1 className="text-4xl font-bold text-gray-900">Your Shopping Cart</h1>
                     <p className="mt-2 text-lg text-gray-600">Review your items and proceed to checkout.</p>

@@ -103,45 +103,20 @@ const RegisterMenu: React.FC<{
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboard, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor, cartItemCount, onCartClick }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const isScrolled = window.scrollY > 10;
-            if (isScrolled !== scrolled) {
-                setScrolled(isScrolled);
-            }
-        };
-
-        document.addEventListener('scroll', handleScroll);
-        return () => {
-            document.removeEventListener('scroll', handleScroll);
-        };
-    }, [scrolled]);
 
     const handleNavClick = (view: 'home' | 'appointments' | 'medicines') => {
         onNavigate(view);
         setIsOpen(false);
     };
 
-    const isLight = activeView !== 'home' || scrolled || isLoggedIn;
-    
-    const navClasses = isLight 
-        ? 'bg-white shadow-md' 
-        : `transition-all duration-300 ${scrolled ? 'bg-slate-900/80 backdrop-blur-lg shadow-md' : 'bg-transparent'}`;
-        
-    const brandColor = isLight ? 'text-gray-900' : 'text-white';
-    
-    // Define styles for different states and themes
-    const activeLinkColor = isLight ? 'text-blue-600 font-semibold' : 'text-white font-semibold';
-    const inactiveLinkColor = isLight ? 'text-gray-500 hover:text-gray-900' : 'text-gray-300 hover:text-white';
-    
-    const loginBtnClasses = isLight ? 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-800' : 'text-gray-300 border-gray-500 hover:border-white hover:text-white';
-    
-    const mobileMenuBtnColor = isLight ? 'text-gray-500 bg-gray-100 hover:bg-gray-200' : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-700/80';
-    
-    const activeMobileLinkColor = isLight ? 'bg-blue-50 text-blue-700 font-semibold' : 'bg-slate-700 text-white font-semibold';
-    const inactiveMobileLinkColor = isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-300 hover:bg-gray-700/50 hover:text-white';
+    const navClasses = 'bg-white shadow-md';
+    const brandColor = 'text-gray-900';
+    const activeLinkColor = 'text-blue-600 font-semibold';
+    const inactiveLinkColor = 'text-gray-500 hover:text-gray-900';
+    const loginBtnClasses = 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-800';
+    const mobileMenuBtnColor = 'text-gray-500 bg-gray-100 hover:bg-gray-200';
+    const activeMobileLinkColor = 'bg-blue-50 text-blue-700 font-semibold';
+    const inactiveMobileLinkColor = 'text-gray-700 hover:bg-gray-100';
 
     const baseLinkClasses = 'px-3 py-2 rounded-md text-sm font-medium transition-colors';
     const mobileBaseLinkClasses = 'block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors';
@@ -204,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
             </div>
 
             {isOpen && (
-                <div className={`md:hidden ${isLight ? 'bg-white border-t border-gray-200' : 'bg-slate-900/95 backdrop-blur-lg border-t border-slate-700'}`} id="mobile-menu">
+                <div className={`md:hidden bg-white border-t border-gray-200`} id="mobile-menu">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <button onClick={() => handleNavClick('home')} className={`${mobileBaseLinkClasses} ${activeView === 'home' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>Home</button>
                         <button onClick={() => handleNavClick('appointments')} className={`${mobileBaseLinkClasses} ${activeView === 'appointments' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>Appointments</button>

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import type { Medicine } from '../types';
 import { MedicineCard } from './MedicineCard';
@@ -22,7 +23,7 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
     }, [medicines, searchTerm, selectedCategory]);
 
     return (
-        <div className="bg-gray-50 min-h-screen pt-20">
+        <div className="bg-gray-50 min-h-screen">
             <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
                 <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
                     <h1 className="text-4xl font-extrabold text-white sm:text-5xl lg:text-6xl">Order Your Medicines</h1>

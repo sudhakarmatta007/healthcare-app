@@ -22,6 +22,7 @@ import { MedicinesPage } from './components/MedicinesPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
+import { LocationsBar } from './components/LocationsBar';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
 
 const DOCTOR_IMAGES = {
@@ -252,6 +253,9 @@ const SAMPLE_HEALTH_HISTORY: HealthEvent[] = [
     }
 ];
 
+const LOCATIONS = [
+    "All Locations", "Eluru", "Hanuman Junction", "Vijayawada", "Gudivada", "Hyderabad"
+];
 
 const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'appointments' | 'dashboard' | 'medicines' | 'cart'>('home');
@@ -511,8 +515,6 @@ const App: React.FC = () => {
     return (
       <>
         <HeroSection 
-          onLocationFilter={handleLocationFilter} 
-          selectedLocation={selectedLocation} 
           onOpenSymptomChecker={() => setIsSymptomCheckerModalOpen(true)}
         />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -585,13 +587,20 @@ const App: React.FC = () => {
         cartItemCount={cartItemCount}
         onCartClick={() => handleNavigate('cart')}
       />
-      <div className="flex-grow">
+      {view === 'home' && (
+        <LocationsBar 
+            locations={LOCATIONS}
+            selectedLocation={selectedLocation}
+            onLocationFilter={handleLocationFilter}
+        />
+      )}
+      <main className={`flex-grow ${view === 'home' ? 'pt-0' : 'pt-20'}`}>
         {view === 'home' && renderHomePage()}
         {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('appointments')} />}
         {view === 'appointments' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}
         {view === 'medicines' && <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />}
         {view === 'cart' && <CartPage cartItems={cart} medicines={MEDICINES_DATA} onUpdateQuantity={handleUpdateCartQuantity} onRemoveItem={handleRemoveFromCart} onProceedToCheckout={handleProceedToCheckout} onContinueShopping={() => setView('medicines')} />}
-      </div>
+      </main>
       <Footer />
 
       {/* Modals */}

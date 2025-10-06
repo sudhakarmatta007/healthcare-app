@@ -25,7 +25,7 @@ const COLORS: Record<HealthEvent['type'], string> = {
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, healthHistory, onNavigateToAppointments }) => {
     return (
-        <div className="bg-gray-50 min-h-screen pt-28">
+        <div className="bg-gray-50 min-h-screen py-12">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <header className="mb-10">
                     <h1 className="text-4xl font-bold text-gray-900">Welcome back, {user.name.split(' ')[0]}!</h1>

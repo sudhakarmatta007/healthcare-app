@@ -2,19 +2,13 @@
 import React from "react";
 
 interface HeroSectionProps {
-  onLocationFilter: (location: string) => void;
-  selectedLocation: string;
   onOpenSymptomChecker: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onLocationFilter, selectedLocation, onOpenSymptomChecker }) => {
-  const locations = [
-    "All Locations", "Eluru", "Hanuman Junction", "Vijayawada", "Gudivada", "Hyderabad"
-  ];
-
+export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenSymptomChecker }) => {
   return (
     <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-40 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 w-full">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
             Appointment<br />
@@ -32,29 +26,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLocationFilter, sele
             <p className="text-white/80 text-sm font-medium mt-2">- Benjamin Franklin</p>
           </div>
         </div>
-
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 max-w-4xl mx-auto">
-          <label className="block text-white font-semibold mb-4 text-lg flex items-center justify-center">
-            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"></path></svg>
-            Select Your Location
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            {locations.map((location) => (
-              <button
-                key={location}
-                onClick={() => onLocationFilter(location)}
-                className={`px-4 py-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  selectedLocation === location
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-white/80 text-gray-800 hover:bg-white hover:shadow-md"
-                }`}
-              >
-                {location}
-              </button>
-            ))}
-          </div>
-        </div>
-
+        
         <div className="mt-12 text-center">
             <h2 className="text-2xl font-bold text-white mb-4">Feeling Unwell?</h2>
             <p className="text-white/80 max-w-xl mx-auto mb-6">
