@@ -15,9 +15,7 @@ import { Footer } from './components/Footer';
 import { RegisterHospitalModal } from './components/RegisterHospitalModal';
 import { RegisterDoctorModal } from './components/RegisterDoctorModal';
 import { SearchSuggestions } from './components/SearchSuggestions';
-import { SymptomCheckerModal } from './components/SymptomCheckerModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
-import { Chatbot } from './components/Chatbot';
 import { MedicinesPage } from './components/MedicinesPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -257,8 +255,9 @@ const LOCATIONS = [
 ];
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'home' | 'appointments' | 'dashboard' | 'medicines' | 'cart'>('home');
+  const [view, setView] = useState<'home' | 'find-care' | 'history' | 'dashboard' | 'medicines' | 'cart'>('home');
   const [activeView, setActiveView] = useState<'doctors' | 'hospitals'>('doctors');
+  const [showAppointmentLists, setShowAppointmentLists] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
@@ -272,7 +271,6 @@ const App: React.FC = () => {
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isRegisterHospitalModalOpen, setIsRegisterHospitalModalOpen] = useState(false);
   const [isRegisterDoctorModalOpen, setIsRegisterDoctorModalOpen] = useState(false);
-  const [isSymptomCheckerModalOpen, setIsSymptomCheckerModalOpen] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
   
   // User state
@@ -314,7 +312,7 @@ const App: React.FC = () => {
     const value = e.target.value;
     setSearchTerm(value);
 
-    if (value.length > 1 && view === 'home') {
+    if (value.length > 1) {
         const docSuggestions = DOCTORS_DATA
             .filter(d => d.name.toLowerCase().includes(value.toLowerCase()) || d.specialty.toLowerCase().includes(value.toLowerCase()))
             .map(d => `${d.name} (${d.specialty})`);
@@ -333,14 +331,22 @@ const App: React.FC = () => {
       setShowSuggestions(false);
   };
 
-  const handleNavigate = (newView: 'home' | 'appointments' | 'medicines' | 'cart') => {
-      if ((newView === 'appointments' || newView === 'medicines' || newView === 'cart') && !isLoggedIn) {
+  const handleNavigate = (newView: 'home' | 'history' | 'medicines' | 'cart') => {
+      if (newView === 'home') {
+          setView('home');
+          setSelectedHospital(null);
+          setSearchTerm('');
+          return;
+      }
+      if ((newView === 'history' || newView === 'medicines' || newView === 'cart') && !isLoggedIn) {
           setIsAuthModalOpen(true);
           return;
       }
       setView(newView);
       setSelectedHospital(null); // Close hospital details on navigation
-      if(newView !== 'home') setSearchTerm(''); // Clear search term when leaving home
+      // FIX: The type of `newView` here can't be 'find-care', so the original comparison `newView !== 'find-care'` was always true, causing a type error.
+      // The intention is to clear the search term when navigating to any of these views, so the condition is removed.
+      setSearchTerm('');
   };
   
   const handleNavigateToDashboard = () => {
@@ -500,7 +506,7 @@ const App: React.FC = () => {
   };
 
 
-  const renderHomePage = () => {
+  const renderFindCarePage = () => {
     if (selectedHospital) {
       return (
         <HospitalDetails 
@@ -512,67 +518,71 @@ const App: React.FC = () => {
     }
 
     return (
-      <>
-        <HeroSection 
-          onOpenSymptomChecker={() => setIsSymptomCheckerModalOpen(true)}
-        />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-10 max-w-2xl mx-auto">
-            <div className="relative">
-                <input
-                    type="text"
-                    placeholder="Search for doctors, hospitals, or specialties..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    onFocus={() => setShowSuggestions(searchTerm.length > 1)}
-                    className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-                <SearchSuggestions 
-                    suggestions={searchSuggestions}
-                    show={showSuggestions}
-                    onSelect={handleSuggestionSelect}
-                    onClose={() => setShowSuggestions(false)}
-                />
-            </div>
-          </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-800">Find Care</h1>
+            <p className="mt-2 text-lg text-gray-600">Select a category to begin your search.</p>
+        </div>
         
-          <div className="flex justify-center mb-8 bg-gray-100 rounded-full p-1 max-w-xs mx-auto">
-              <button
-                  onClick={() => setActiveView('doctors')}
-                  className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'doctors' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
-              >
-                  Doctors
-              </button>
-              <button
-                  onClick={() => setActiveView('hospitals')}
-                  className={`w-full px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-300 ${activeView === 'hospitals' ? 'bg-white text-blue-600 shadow' : 'text-gray-600'}`}
-              >
-                  Hospitals
-              </button>
-          </div>
+        <div className="flex justify-center mb-8 gap-4">
+            <button
+                onClick={() => { setActiveView('doctors'); setShowAppointmentLists(true); }}
+                className={`px-8 py-4 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeView === 'doctors' && showAppointmentLists ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-blue-600 shadow'}`}
+            >
+                Doctors
+            </button>
+            <button
+                onClick={() => { setActiveView('hospitals'); setShowAppointmentLists(true); }}
+                className={`px-8 py-4 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeView === 'hospitals' && showAppointmentLists ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-blue-600 shadow'}`}
+            >
+                Hospitals
+            </button>
+        </div>
 
-          {activeView === 'doctors' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredDoctors.map(doctor => (
-                  <DoctorCard key={doctor.id} doctor={doctor} onBook={() => setSelectedDoctorForBooking(doctor)} onViewProfile={() => setSelectedDoctorForProfile(doctor)} />
-              ))}
-              </div>
-          ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredHospitals.map(hospital => (
-                  <HospitalCard key={hospital.id} hospital={hospital} onSelect={() => setSelectedHospital(hospital)} />
-              ))}
-              </div>
-          )}
-        </main>
-      </>
+        {showAppointmentLists && (
+            <div className="animate-fade-in mt-12">
+                <div className="mb-10 max-w-2xl mx-auto">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder={`Search for ${activeView}...`}
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            onFocus={() => setShowSuggestions(searchTerm.length > 1)}
+                            className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        />
+                        <SearchSuggestions 
+                            suggestions={searchSuggestions}
+                            show={showSuggestions}
+                            onSelect={handleSuggestionSelect}
+                            onClose={() => setShowSuggestions(false)}
+                        />
+                    </div>
+                </div>
+            
+                {activeView === 'doctors' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {filteredDoctors.map(doctor => (
+                        <DoctorCard key={doctor.id} doctor={doctor} onBook={() => setSelectedDoctorForBooking(doctor)} onViewProfile={() => setSelectedDoctorForProfile(doctor)} />
+                    ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredHospitals.map(hospital => (
+                        <HospitalCard key={hospital.id} hospital={hospital} onSelect={() => setSelectedHospital(hospital)} />
+                    ))}
+                    </div>
+                )}
+            </div>
+        )}
+      </main>
     );
   };
 
   const cartItemCount = useMemo(() => cart.reduce((total, item) => total + item.quantity, 0), [cart]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-slate-50">
       <Navbar
         onNavigate={handleNavigate}
         onNavigateToDashboard={handleNavigateToDashboard}
@@ -589,23 +599,23 @@ const App: React.FC = () => {
         selectedLocation={selectedLocation}
         onLocationFilter={handleLocationFilter}
       />
-      <main className={`flex-grow ${view === 'home' ? 'pt-20' : 'pt-20'}`}>
-        {view === 'home' && renderHomePage()}
-        {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('appointments')} />}
-        {view === 'appointments' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}
+      <main className={`flex-grow ${view !== 'home' ? 'pt-20' : ''}`}>
+        {view === 'home' && <HeroSection onAppointmentClick={() => { setView('find-care'); setShowAppointmentLists(false); setActiveView('doctors'); }} onMedicinesClick={() => handleNavigate('medicines')} />}
+        {view === 'find-care' && renderFindCarePage()}
+        {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('history')} />}
+        {view === 'history' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}
         {view === 'medicines' && <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />}
         {view === 'cart' && <CartPage cartItems={cart} medicines={MEDICINES_DATA} onUpdateQuantity={handleUpdateCartQuantity} onRemoveItem={handleRemoveFromCart} onProceedToCheckout={handleProceedToCheckout} onContinueShopping={() => setView('medicines')} />}
       </main>
       <Footer />
 
       {/* Modals */}
-      {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => setView('appointments')} />}
+      {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => setView('history')} />}
       {selectedDoctorForProfile && <DoctorProfileModal doctor={selectedDoctorForProfile} onClose={() => setSelectedDoctorForProfile(null)} onBook={(doc) => { setSelectedDoctorForProfile(null); setSelectedDoctorForBooking(doc); }} />}
       {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onLogin={handleLogin} onSignUp={handleSignUp} />}
       {isOnboardingModalOpen && currentUser && <OnboardingModal user={currentUser} onClose={handleCloseOnboarding} />}
       {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
       {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
-      {isSymptomCheckerModalOpen && <SymptomCheckerModal onClose={() => setIsSymptomCheckerModalOpen(false)} />}
       
       {isCheckoutModalOpen && <CheckoutModal
         cartItems={cart}
@@ -631,7 +641,6 @@ const App: React.FC = () => {
         message="Are you sure you want to cancel this appointment? This action cannot be undone."
         confirmButtonText="Yes, Cancel"
       />
-      <Chatbot />
     </div>
   );
 };

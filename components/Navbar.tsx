@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { User } from '../types';
 import { Badge } from './ui/badge';
 import { LocationsPanel } from './LocationsPanel';
 
 interface NavbarProps {
-    onNavigate: (view: 'home' | 'appointments' | 'medicines' | 'cart') => void;
+    onNavigate: (view: 'home' | 'history' | 'medicines' | 'cart') => void;
     onNavigateToDashboard: () => void;
-    activeView: 'home' | 'appointments' | 'dashboard' | 'medicines' | 'cart';
+    activeView: 'home' | 'find-care' | 'history' | 'dashboard' | 'medicines' | 'cart';
     isLoggedIn: boolean;
     user: User | null;
     onLoginClick: () => void;
@@ -109,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
     const [isOpen, setIsOpen] = useState(false);
     const [isLocationsPanelOpen, setIsLocationsPanelOpen] = useState(false);
 
-    const handleNavClick = (view: 'home' | 'appointments' | 'medicines') => {
+    const handleNavClick = (view: 'home' | 'history' | 'medicines' | 'cart') => {
         onNavigate(view);
         setIsOpen(false);
     };
@@ -143,9 +144,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                     </div>
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-4">
-                            <button onClick={() => handleNavClick('home')} className={`${baseLinkClasses} ${activeView === 'home' ? activeLinkClasses : inactiveLinkClasses}`}>Home</button>
-                            <button onClick={() => handleNavClick('appointments')} className={`${baseLinkClasses} ${activeView === 'appointments' ? activeLinkClasses : inactiveLinkClasses}`}>Appointments</button>
-                            <button onClick={() => handleNavClick('medicines')} className={`${baseLinkClasses} ${activeView === 'medicines' ? activeLinkClasses : inactiveLinkClasses}`}>Medicines</button>
+                            <button onClick={() => handleNavClick('home')} className={`${baseLinkClasses} ${['home', 'find-care'].includes(activeView) ? activeLinkClasses : inactiveLinkClasses}`}>Home</button>
+                            <button onClick={() => handleNavClick('history')} className={`${baseLinkClasses} ${activeView === 'history' ? activeLinkClasses : inactiveLinkClasses}`}>History</button>
                             <RegisterMenu 
                                 onOpenRegisterHospital={onOpenRegisterHospital} 
                                 onOpenRegisterDoctor={onOpenRegisterDoctor}
@@ -204,9 +204,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
             {isOpen && (
                 <div className={`md:hidden bg-white border-t border-gray-200`} id="mobile-menu">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <button onClick={() => handleNavClick('home')} className={`${mobileBaseLinkClasses} ${activeView === 'home' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Home</button>
-                        <button onClick={() => handleNavClick('appointments')} className={`${mobileBaseLinkClasses} ${activeView === 'appointments' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Appointments</button>
-                        <button onClick={() => handleNavClick('medicines')} className={`${mobileBaseLinkClasses} ${activeView === 'medicines' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Medicines</button>
+                        <button onClick={() => handleNavClick('home')} className={`${mobileBaseLinkClasses} ${['home', 'find-care'].includes(activeView) ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Home</button>
+                        <button onClick={() => handleNavClick('history')} className={`${mobileBaseLinkClasses} ${activeView === 'history' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>History</button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         <button onClick={() => { onOpenRegisterHospital(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Register Hospital</button>
                         <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Register as Doctor</button>
