@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { User } from '../types';
 import { Badge } from './ui/badge';
@@ -59,11 +58,11 @@ const UserMenu: React.FC<{ user: User; onLogout: () => void; onNavigateToDashboa
 };
 
 const RegisterMenu: React.FC<{ 
-    linkColor: string;
+    className: string;
     onOpenRegisterHospital: () => void; 
     onOpenRegisterDoctor: () => void; 
     onCloseMobileMenu: () => void;
-}> = ({ linkColor, onOpenRegisterHospital, onOpenRegisterDoctor, onCloseMobileMenu }) => {
+}> = ({ className, onOpenRegisterHospital, onOpenRegisterDoctor, onCloseMobileMenu }) => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -91,7 +90,7 @@ const RegisterMenu: React.FC<{
 
     return (
         <div className="relative" ref={menuRef}>
-            <button onClick={() => setIsOpen(!isOpen)} className={`${linkColor} px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center`}>
+            <button onClick={() => setIsOpen(!isOpen)} className={`${className} inline-flex items-center`}>
                 Register
                 <svg className={`w-4 h-4 ml-1 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
@@ -117,14 +116,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
 
     const navClasses = 'bg-white shadow-md';
     const brandColor = 'text-gray-900';
-    const activeLinkColor = 'text-blue-600 font-semibold';
-    const inactiveLinkColor = 'text-gray-500 hover:text-gray-900';
-    const loginBtnClasses = 'text-gray-600 border-gray-300 hover:border-gray-500 hover:text-gray-800';
-    const mobileMenuBtnColor = 'text-gray-500 bg-gray-100 hover:bg-gray-200';
-    const activeMobileLinkColor = 'bg-blue-50 text-blue-700 font-semibold';
-    const inactiveMobileLinkColor = 'text-gray-700 hover:bg-gray-100';
+    
+    // Gold Theme Classes
+    const activeLinkClasses = 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white font-semibold shadow-md';
+    const inactiveLinkClasses = 'bg-gradient-to-r from-yellow-200 to-amber-300 text-gray-900 hover:from-yellow-300 hover:to-amber-400 hover:shadow-md';
+    const loginBtnClasses = 'bg-gradient-to-r from-yellow-200 to-amber-300 text-gray-900 border border-amber-400 hover:from-yellow-300 hover:to-amber-400';
+    const signupBtnClasses = 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:from-amber-500 hover:to-yellow-600 shadow-md';
 
-    const baseLinkClasses = 'px-3 py-2 rounded-md text-sm font-medium transition-colors';
+    const mobileMenuBtnColor = 'text-gray-500 bg-gray-100 hover:bg-gray-200';
+    const activeMobileLinkClasses = 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white font-semibold';
+    const inactiveMobileLinkClasses = 'text-gray-800 hover:bg-amber-100';
+
+    const baseLinkClasses = 'px-3 py-2 rounded-md text-sm font-medium transition-all duration-300';
     const mobileBaseLinkClasses = 'block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors';
 
     const CartIcon = <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>;
@@ -140,13 +143,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                     </div>
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-4">
-                            <button onClick={() => handleNavClick('home')} className={`${baseLinkClasses} ${activeView === 'home' ? activeLinkColor : inactiveLinkColor}`}>Home</button>
-                            <button onClick={() => handleNavClick('appointments')} className={`${baseLinkClasses} ${activeView === 'appointments' ? activeLinkColor : inactiveLinkColor}`}>Appointments</button>
-                            <button onClick={() => handleNavClick('medicines')} className={`${baseLinkClasses} ${activeView === 'medicines' ? activeLinkColor : inactiveLinkColor}`}>Medicines</button>
+                            <button onClick={() => handleNavClick('home')} className={`${baseLinkClasses} ${activeView === 'home' ? activeLinkClasses : inactiveLinkClasses}`}>Home</button>
+                            <button onClick={() => handleNavClick('appointments')} className={`${baseLinkClasses} ${activeView === 'appointments' ? activeLinkClasses : inactiveLinkClasses}`}>Appointments</button>
+                            <button onClick={() => handleNavClick('medicines')} className={`${baseLinkClasses} ${activeView === 'medicines' ? activeLinkClasses : inactiveLinkClasses}`}>Medicines</button>
                             <RegisterMenu 
                                 onOpenRegisterHospital={onOpenRegisterHospital} 
                                 onOpenRegisterDoctor={onOpenRegisterDoctor}
-                                linkColor={inactiveLinkColor}
+                                className={`${baseLinkClasses} ${inactiveLinkClasses}`}
                                 onCloseMobileMenu={() => {}}
                             />
                         </div>
@@ -167,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                         <div className="flex items-center space-x-4">
                             {isLoggedIn && user ? (
                                 <>
-                                    <button onClick={onCartClick} className={`${activeView === 'cart' ? activeLinkColor : inactiveLinkColor} relative p-1 rounded-full`}>
+                                    <button onClick={onCartClick} className={`${activeView === 'cart' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'} relative p-1 rounded-full`}>
                                         {CartIcon}
                                         {cartItemCount > 0 && <Badge>{cartItemCount}</Badge>}
                                     </button>
@@ -175,8 +178,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                                 </>
                             ) : (
                                 <>
-                                    <button onClick={onLoginClick} className={`border px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${loginBtnClasses}`}>Login</button>
-                                    <button onClick={onLoginClick} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-md">Sign Up</button>
+                                    <button onClick={onLoginClick} className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${loginBtnClasses}`}>Login</button>
+                                    <button onClick={onLoginClick} className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${signupBtnClasses}`}>Sign Up</button>
                                 </>
                             )}
                         </div>
@@ -201,36 +204,36 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
             {isOpen && (
                 <div className={`md:hidden bg-white border-t border-gray-200`} id="mobile-menu">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <button onClick={() => handleNavClick('home')} className={`${mobileBaseLinkClasses} ${activeView === 'home' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>Home</button>
-                        <button onClick={() => handleNavClick('appointments')} className={`${mobileBaseLinkClasses} ${activeView === 'appointments' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>Appointments</button>
-                        <button onClick={() => handleNavClick('medicines')} className={`${mobileBaseLinkClasses} ${activeView === 'medicines' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>Medicines</button>
+                        <button onClick={() => handleNavClick('home')} className={`${mobileBaseLinkClasses} ${activeView === 'home' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Home</button>
+                        <button onClick={() => handleNavClick('appointments')} className={`${mobileBaseLinkClasses} ${activeView === 'appointments' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Appointments</button>
+                        <button onClick={() => handleNavClick('medicines')} className={`${mobileBaseLinkClasses} ${activeView === 'medicines' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>Medicines</button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                        <button onClick={() => { onOpenRegisterHospital(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Register Hospital</button>
-                        <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Register as Doctor</button>
+                        <button onClick={() => { onOpenRegisterHospital(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Register Hospital</button>
+                        <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Register as Doctor</button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         <button 
                             onClick={() => {
                                 setIsOpen(false);
                                 setIsLocationsPanelOpen(true);
                             }} 
-                            className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor} flex justify-between items-center w-full`}>
+                            className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses} flex justify-between items-center w-full`}>
                              <span>Location: {selectedLocation}</span>
                              <span className="text-blue-600 font-semibold text-xs">CHANGE</span>
                         </button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         {isLoggedIn && user ? (
                              <>
-                                <button onClick={() => { onCartClick(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${activeView === 'cart' ? activeMobileLinkColor : inactiveMobileLinkColor} flex justify-between items-center w-full`}>
+                                <button onClick={() => { onCartClick(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${activeView === 'cart' ? activeMobileLinkClasses : inactiveMobileLinkClasses} flex justify-between items-center w-full`}>
                                     <span>My Cart</span>
                                     {cartItemCount > 0 && <span className="bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{cartItemCount}</span>}
                                 </button>
-                                <button onClick={() => { onNavigateToDashboard(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${activeView === 'dashboard' ? activeMobileLinkColor : inactiveMobileLinkColor}`}>My Profile</button>
-                                <button onClick={onLogout} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Logout</button>
+                                <button onClick={() => { onNavigateToDashboard(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${activeView === 'dashboard' ? activeMobileLinkClasses : inactiveMobileLinkClasses}`}>My Profile</button>
+                                <button onClick={onLogout} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Logout</button>
                             </>
                         ) : (
                             <>
-                                <button onClick={onLoginClick} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Login</button>
-                                <button onClick={onLoginClick} className="bg-blue-600 text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors">Sign Up</button>
+                                <button onClick={onLoginClick} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkClasses}`}>Login</button>
+                                <button onClick={onLoginClick} className={`${signupBtnClasses} block w-full text-left px-3 py-2 rounded-md text-base font-medium`}>Sign Up</button>
                             </>
                         )}
                     </div>
