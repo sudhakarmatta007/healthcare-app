@@ -26,7 +26,7 @@ import { LocationsBar } from './components/LocationsBar';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
 
 const DOCTOR_IMAGES = {
-  sudhakar: 'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=600',
+  sudhakar: 'https://image2url.com/images/1759759993000-7fec70ae-653e-4103-bcd4-1fbbe7e13020.jpg?auto=compress&cs=tinysrgb&w=600',
   ram: 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=600',
   vaseem: 'https://images.pexels.com/photos/4173251/pexels-photo-4173251.jpeg?auto=compress&cs=tinysrgb&w=600',
   rajesh: 'https://images.pexels.com/photos/5327653/pexels-photo-5327653.jpeg?auto=compress&cs=tinysrgb&w=600',
