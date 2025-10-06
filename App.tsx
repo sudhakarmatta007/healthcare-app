@@ -22,7 +22,6 @@ import { MedicinesPage } from './components/MedicinesPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
-import { LocationsBar } from './components/LocationsBar';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
 
 const DOCTOR_IMAGES = {
@@ -586,15 +585,11 @@ const App: React.FC = () => {
         onOpenRegisterDoctor={() => setIsRegisterDoctorModalOpen(true)}
         cartItemCount={cartItemCount}
         onCartClick={() => handleNavigate('cart')}
+        locations={LOCATIONS}
+        selectedLocation={selectedLocation}
+        onLocationFilter={handleLocationFilter}
       />
-      {view === 'home' && (
-        <LocationsBar 
-            locations={LOCATIONS}
-            selectedLocation={selectedLocation}
-            onLocationFilter={handleLocationFilter}
-        />
-      )}
-      <main className={`flex-grow ${view === 'home' ? 'pt-0' : 'pt-20'}`}>
+      <main className={`flex-grow ${view === 'home' ? 'pt-20' : 'pt-20'}`}>
         {view === 'home' && renderHomePage()}
         {view === 'dashboard' && currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => setView('appointments')} />}
         {view === 'appointments' && <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>}

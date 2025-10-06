@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { User } from '../types';
 import { Badge } from './ui/badge';
+import { LocationsPanel } from './LocationsPanel';
 
 interface NavbarProps {
     onNavigate: (view: 'home' | 'appointments' | 'medicines' | 'cart') => void;
@@ -14,6 +16,9 @@ interface NavbarProps {
     onOpenRegisterDoctor: () => void;
     cartItemCount: number;
     onCartClick: () => void;
+    locations: string[];
+    selectedLocation: string;
+    onLocationFilter: (location: string) => void;
 }
 
 const UserMenu: React.FC<{ user: User; onLogout: () => void; onNavigateToDashboard: () => void; }> = ({ user, onLogout, onNavigateToDashboard }) => {
@@ -101,8 +106,9 @@ const RegisterMenu: React.FC<{
 };
 
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboard, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor, cartItemCount, onCartClick }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboard, activeView, isLoggedIn, user, onLoginClick, onLogout, onOpenRegisterHospital, onOpenRegisterDoctor, cartItemCount, onCartClick, locations, selectedLocation, onLocationFilter }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLocationsPanelOpen, setIsLocationsPanelOpen] = useState(false);
 
     const handleNavClick = (view: 'home' | 'appointments' | 'medicines') => {
         onNavigate(view);
@@ -122,6 +128,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
     const mobileBaseLinkClasses = 'block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors';
 
     const CartIcon = <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>;
+    const LocationPinIcon = <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"></path></svg>;
+    const ChevronDownIcon = <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isLocationsPanelOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>;
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 ${navClasses}`}>
@@ -143,8 +151,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                             />
                         </div>
                     </div>
-                     <div className="hidden md:block">
-                        <div className="ml-4 flex items-center md:ml-6 space-x-4">
+                     <div className="hidden md:flex items-center gap-4">
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsLocationsPanelOpen(prev => !prev)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                                aria-haspopup="true"
+                                aria-expanded={isLocationsPanelOpen}
+                            >
+                                {LocationPinIcon}
+                                <span className="truncate max-w-[120px]">{selectedLocation}</span>
+                                {ChevronDownIcon}
+                            </button>
+                        </div>
+                        <div className="flex items-center space-x-4">
                             {isLoggedIn && user ? (
                                 <>
                                     <button onClick={onCartClick} className={`${activeView === 'cart' ? activeLinkColor : inactiveLinkColor} relative p-1 rounded-full`}>
@@ -188,6 +208,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                         <button onClick={() => { onOpenRegisterHospital(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Register Hospital</button>
                         <button onClick={() => { onOpenRegisterDoctor(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor}`}>Register as Doctor</button>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                        <button 
+                            onClick={() => {
+                                setIsOpen(false);
+                                setIsLocationsPanelOpen(true);
+                            }} 
+                            className={`${mobileBaseLinkClasses} ${inactiveMobileLinkColor} flex justify-between items-center w-full`}>
+                             <span>Location: {selectedLocation}</span>
+                             <span className="text-blue-600 font-semibold text-xs">CHANGE</span>
+                        </button>
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                         {isLoggedIn && user ? (
                              <>
                                 <button onClick={() => { onCartClick(); setIsOpen(false); }} className={`${mobileBaseLinkClasses} ${activeView === 'cart' ? activeMobileLinkColor : inactiveMobileLinkColor} flex justify-between items-center w-full`}>
@@ -206,6 +236,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onNavigateToDashboar
                     </div>
                 </div>
             )}
+            <LocationsPanel
+                isOpen={isLocationsPanelOpen}
+                onClose={() => setIsLocationsPanelOpen(false)}
+                locations={locations}
+                selectedLocation={selectedLocation}
+                onLocationFilter={onLocationFilter}
+            />
         </nav>
     );
 };
