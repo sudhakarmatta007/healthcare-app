@@ -78,9 +78,23 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
                             </div>
                         </div>
 
-                        <h3 className="text-lg font-bold text-text-primary mt-8 mb-4">Payment Method</h3>
-                        <div className="space-y-3">
-                            <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'Online Payment' ? 'bg-gold-500/10 border-gold-500' : 'border-card-border hover:border-gold-400'}`}>
-                                <input type="radio" name="paymentMethod" value="Online Payment" checked={paymentMethod === 'Online Payment'} onChange={() => setPaymentMethod('Online Payment')} className="h-4 w-4 text-gold-600 border-gray-300 focus:ring
-                            </label>
-                        </div>
+<h3 className="text-lg font-bold text-text-primary mt-8 mb-4">Payment Method</h3>
+<div className="space-y-3">
+  <label
+    className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
+      paymentMethod === 'Online Payment'
+        ? 'bg-gold-500/10 border-gold-500'
+        : 'border-card-border hover:border-gold-400'
+    }`}
+  >
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="Online Payment"
+      checked={paymentMethod === 'Online Payment'}
+      onChange={() => setPaymentMethod('Online Payment')}
+      className="h-4 w-4 text-gold-600 border-gray-300 focus:ring"
+    />
+    <span className="ml-2">Online Payment</span>
+  </label>
+</div>
