@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -21,7 +20,6 @@ import { MedicinesPage } from './components/MedicinesPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
-import { SymptomCheckerModal } from './components/SymptomCheckerModal';
 import { BottomNav } from './components/BottomNav';
 import { PageHeader } from './components/PageHeader';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
@@ -302,7 +300,6 @@ const App: React.FC = () => {
   const [isRegisterHospitalModalOpen, setIsRegisterHospitalModalOpen] = useState(false);
   const [isRegisterDoctorModalOpen, setIsRegisterDoctorModalOpen] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
-  const [isSymptomCheckerOpen, setIsSymptomCheckerOpen] = useState(false);
   
   // User state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -559,7 +556,7 @@ const App: React.FC = () => {
     
     switch (view) {
       case 'home':
-        return <HeroSection onAppointmentClick={() => handleNavigate('find-care')} onMedicinesClick={() => handleNavigate('medicines')} onSymptomCheckClick={() => setIsSymptomCheckerOpen(true)} />;
+        return <HeroSection onAppointmentClick={() => handleNavigate('find-care')} onMedicinesClick={() => handleNavigate('medicines')} />;
       case 'find-care':
         return (
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-up">
@@ -620,6 +617,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => handleNavigate('history')} />;
       case 'history':
+        // FIX: Pass 'handleUpdateRating' to 'onUpdateRating' prop instead of the undefined 'onUpdateRating'.
         return <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>;
       case 'medicines':
         return <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />;
@@ -665,7 +663,6 @@ const App: React.FC = () => {
       {isOnboardingModalOpen && currentUser && <OnboardingModal user={currentUser} onClose={handleCloseOnboarding} />}
       {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
       {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
-      {isSymptomCheckerOpen && <SymptomCheckerModal onClose={() => setIsSymptomCheckerOpen(false)} />}
       
       {isCheckoutModalOpen && <CheckoutModal
         cartItems={cart}

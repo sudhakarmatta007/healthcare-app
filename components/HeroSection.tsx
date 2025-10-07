@@ -1,10 +1,10 @@
+
 import React from "react";
-import { AppointmentIcon, MedicineIcon, SymptomCheckerIcon } from "./icons";
+import { AppointmentIcon, MedicineIcon } from "./icons";
 
 interface HeroSectionProps {
   onAppointmentClick: () => void;
   onMedicinesClick: () => void;
-  onSymptomCheckClick: () => void;
 }
 
 const NavButton: React.FC<{ icon: React.ReactNode; title: string; description: string; onClick: () => void; }> = ({ icon, title, description, onClick }) => (
@@ -20,7 +20,7 @@ const NavButton: React.FC<{ icon: React.ReactNode; title: string; description: s
     </button>
 );
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onAppointmentClick, onMedicinesClick, onSymptomCheckClick }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onAppointmentClick, onMedicinesClick }) => {
   return (
     <div className="bg-background">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 w-full flex flex-col items-center">
@@ -33,7 +33,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onAppointmentClick, on
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 items-center justify-center gap-8 animate-fade-up animation-delay-300">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 animate-fade-up animation-delay-300">
             <NavButton 
                 title="Appointments"
                 description="Find and book a visit with a doctor."
@@ -45,12 +45,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onAppointmentClick, on
                 description="Order prescriptions and wellness products."
                 onClick={onMedicinesClick}
                 icon={<MedicineIcon className="h-7 w-7" />}
-            />
-            <NavButton 
-                title="Symptom Checker"
-                description="Get AI-powered health insights."
-                onClick={onSymptomCheckClick}
-                icon={<SymptomCheckerIcon className="h-7 w-7" />}
             />
         </div>
       </div>

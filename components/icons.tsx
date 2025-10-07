@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 // Common props for icons
@@ -12,8 +13,6 @@ export const LocationPinIcon: React.FC<IconProps> = ({ className = "w-6 h-6" }) 
 export const ChevronDownIcon: React.FC<IconProps> = ({ className = "w-5 h-5" }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
 export const SendIcon: React.FC<IconProps> = ({ className = "w-6 h-6" }) => <svg className={className} fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>;
 export const ChatIcon: React.FC<IconProps> = ({ className = "w-6 h-6" }) => <svg className={className} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.08-3.239A8.995 8.995 0 012 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM4.79 12.222a7.014 7.014 0 008.42 0 1 1 0 111.58 1.184 9.013 9.013 0 01-11.58 0c-.39-.33-.06-1.02.39-1.184a1 1 0 011.19.002z" clipRule="evenodd" /></svg>;
-// FIX: Added missing SymptomCheckerIcon.
-export const SymptomCheckerIcon: React.FC<IconProps> = ({ className = "w-6 h-6" }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>;
 
 // Navigation Icons
 export const HomeIcon: React.FC<IconProps> = ({ className = "w-5 h-5" }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>;
