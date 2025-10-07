@@ -14,7 +14,7 @@ const StarIcon: React.FC<{ className: string }> = ({ className }) => (
 
 export const HospitalCard: React.FC<HospitalCardProps> = ({ hospital, onSelect }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 group">
+    <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 group border border-card-border">
       <div className="relative">
         <img className="w-full h-56 object-cover" src={hospital.imageUrl} alt={hospital.name} />
         <div className="absolute bottom-0 left-0 bg-black/50 text-white p-3 w-full">
@@ -24,22 +24,22 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({ hospital, onSelect }
                 <span>{hospital.location}</span>
             </div>
         </div>
-        <div className="absolute top-0 right-0 bg-yellow-400 text-white font-bold px-3 py-1 m-2 rounded-full text-sm flex items-center gap-1">
+        <div className="absolute top-0 right-0 bg-gold-400 text-accent-text font-bold px-3 py-1 m-2 rounded-full text-sm flex items-center gap-1">
           <StarIcon className="w-4 h-4" />
           <span>{hospital.rating}</span>
         </div>
       </div>
       <div className="p-5">
-        <p className="text-gray-800 font-semibold mb-3">Key Services:</p>
+        <p className="text-text-primary font-semibold mb-3">Key Services:</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {hospital.services.slice(0, 3).map(service => (
-            <span key={service} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">{service}</span>
+            <span key={service} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">{service}</span>
           ))}
-          {hospital.services.length > 3 && <span className="text-blue-800 text-xs font-semibold py-1">...</span>}
+          {hospital.services.length > 3 && <span className="text-blue-800 dark:text-blue-200 text-xs font-semibold py-1">...</span>}
         </div>
         <button 
             onClick={() => onSelect(hospital)}
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300 group-hover:bg-blue-600"
+            className="w-full bg-gold-400 text-accent-text font-bold py-2 px-4 rounded-lg hover:bg-gold-500 transition-colors duration-300"
         >
           View Details
         </button>

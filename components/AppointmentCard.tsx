@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import type { Appointment, Doctor, HospitalDoctor } from '../types';
 import { StarRating } from './StarRating';
-
 
 interface AppointmentCardProps {
     appointment: Appointment;
@@ -13,11 +11,11 @@ interface AppointmentCardProps {
 
 const InfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
     <div>
-        <dt className="flex items-center text-sm font-medium text-gray-500">
+        <dt className="flex items-center text-sm font-medium text-text-secondary">
             {icon}
             <span className="ml-2">{label}</span>
         </dt>
-        <dd className="mt-1 text-sm text-gray-900 font-semibold">{value}</dd>
+        <dd className="mt-1 text-sm text-text-primary font-semibold">{value}</dd>
     </div>
 );
 
@@ -38,13 +36,13 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-        timeZone: 'UTC' // Add timezone to avoid off-by-one day errors
+        timeZone: 'UTC'
     });
 
     const statusStyles: Record<typeof status, string> = {
-        Upcoming: 'bg-blue-100 text-blue-800',
-        Completed: 'bg-green-100 text-green-800',
-        Cancelled: 'bg-red-100 text-red-800',
+        Upcoming: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+        Completed: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+        Cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
     };
 
     const handleSubmitRating = () => {
@@ -56,53 +54,53 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
     const renderFooter = () => {
         if (status === 'Upcoming') {
             return (
-                <div className="bg-gray-50 px-6 py-3 flex flex-wrap gap-2 justify-end">
+                <div className="bg-background px-6 py-3 flex flex-wrap gap-2 justify-end">
                     <button onClick={() => onCancelAppointment(id)} className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">Cancel</button>
-                    <button onClick={() => onRebookAppointment(doctor)} className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Reschedule</button>
+                    <button onClick={() => onRebookAppointment(doctor)} className="text-sm font-medium text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors">Reschedule</button>
                 </div>
             );
         }
         
         if (status === 'Completed') {
              return (
-                <div className="bg-gray-50 px-6 py-4">
+                <div className="bg-background px-6 py-4">
                     {typeof appointment.doctorRating === 'number' && typeof appointment.serviceRating === 'number' ? (
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                             <div>
-                                <h4 className="text-sm font-bold text-gray-700 mb-3 sm:mb-0">Your Rating</h4>
+                                <h4 className="text-sm font-bold text-text-primary mb-3 sm:mb-0">Your Rating</h4>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-gray-600">Doctor:</p>
+                                        <p className="text-sm font-medium text-text-secondary">Doctor:</p>
                                         <StarRating rating={appointment.doctorRating} />
                                     </div>
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-gray-600">Service:</p>
+                                        <p className="text-sm font-medium text-text-secondary">Service:</p>
                                         <StarRating rating={appointment.serviceRating} />
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0 self-end sm:self-center">Re-book</button>
+                            <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors flex-shrink-0 self-end sm:self-center">Re-book</button>
                         </div>
                     ) : (
                         <div>
-                            <h4 className="text-sm font-bold text-gray-700 mb-3">Rate Your Experience</h4>
+                            <h4 className="text-sm font-bold text-text-primary mb-3">Rate Your Experience</h4>
                             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                                <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-gray-600 w-16">Doctor</p>
+                                        <p className="text-sm font-medium text-text-secondary w-16">Doctor</p>
                                         <StarRating rating={tempDoctorRating} onRatingChange={setTempDoctorRating} isEditable />
                                     </div>
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-gray-600 w-16">Service</p>
+                                        <p className="text-sm font-medium text-text-secondary w-16">Service</p>
                                         <StarRating rating={tempServiceRating} onRatingChange={setTempServiceRating} isEditable />
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 self-end xl:self-center">
-                                     <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 border border-blue-600 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-50 transition-colors flex-shrink-0">Re-book</button>
+                                     <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 border border-gold-400 text-gold-400 text-sm font-semibold rounded-lg hover:bg-gold-400/10 transition-colors flex-shrink-0">Re-book</button>
                                      <button
                                         onClick={handleSubmitRating}
                                         disabled={!tempDoctorRating || !tempServiceRating}
-                                        className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         Submit Rating
                                     </button>
@@ -116,8 +114,8 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
 
         if (status === 'Cancelled') {
             return (
-                 <div className="bg-gray-50 px-6 py-3 flex justify-end">
-                    <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">Book Again</button>
+                 <div className="bg-background px-6 py-3 flex justify-end">
+                    <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors">Book Again</button>
                 </div>
             );
         }
@@ -127,25 +125,25 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
 
 
     return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg">
+        <div className="bg-card-bg rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-card-border">
             <div className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-start">
                     <div>
                         <div className="flex items-center mb-4">
-                            <img src={doctor.imageUrl} alt={doctor.name} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
+                            <img src={doctor.imageUrl} alt={doctor.name} className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-charcoal shadow-sm" />
                             <div className="ml-4">
-                                <h3 className="text-xl font-bold text-gray-900">{doctor.name}</h3>
-                                <p className="text-md text-blue-600 font-semibold">{specialty}</p>
+                                <h3 className="text-xl font-bold text-text-primary">{doctor.name}</h3>
+                                <p className="text-md text-gold-600 dark:text-gold-400 font-semibold">{specialty}</p>
                             </div>
                         </div>
                     </div>
                     <div className="mt-4 sm:mt-0 flex flex-col items-start sm:items-end">
                          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusStyles[status]}`}>{status}</span>
-                         <p className="text-xs text-gray-400 mt-2">ID: {id}</p>
+                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">ID: {id}</p>
                     </div>
                 </div>
 
-                <hr className="my-4" />
+                <hr className="my-4 border-card-border" />
 
                 <dl className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
                     <InfoItem icon={<DoctorIcon />} label="Doctor" value={doctor.name} />

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -22,7 +23,6 @@ import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { BottomNav } from './components/BottomNav';
 import { PageHeader } from './components/PageHeader';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
-import { Chatbot } from './components/Chatbot';
 
 type View = 'home' | 'find-care' | 'history' | 'dashboard' | 'medicines' | 'cart';
 
@@ -366,15 +366,12 @@ const App: React.FC = () => {
       }
       
       setView(prevView => {
-          if (newView !== view) {
-            setViewHistory(history => [...history, prevView]);
-          }
+          setViewHistory(history => [...history, prevView]);
           return newView;
       });
       setSelectedHospital(null);
       setSearchTerm('');
-      window.scrollTo(0, 0);
-  }, [isLoggedIn, view]);
+  }, [isLoggedIn]);
 
   const handleBack = () => {
       const newHistory = [...viewHistory];
@@ -541,7 +538,7 @@ const App: React.FC = () => {
     cart: 'Shopping Cart',
   };
   
-  const showHeader = !['home', 'find-care'].includes(view) && !selectedHospital;
+  const showHeader = !['home', 'find-care'].includes(view);
 
   const renderCurrentView = () => {
     if (selectedHospital) {
@@ -646,6 +643,7 @@ const App: React.FC = () => {
         theme={theme}
         toggleTheme={toggleTheme}
       />
+      {/* FIX: Changed showBottomNav to isLoggedIn to correctly determine if the bottom nav is visible */}
       <main className={`flex-grow pt-20 ${isLoggedIn ? 'pb-20' : ''}`}>
         {showHeader && <PageHeader title={pageTitles[view]} onBack={handleBack} />}
         {renderCurrentView()}
@@ -654,8 +652,6 @@ const App: React.FC = () => {
       {isLoggedIn && <BottomNav activeView={view} onNavigate={handleNavigate} cartItemCount={cartItemCount} />}
 
       <Footer />
-      
-      <Chatbot />
 
       {/* Modals */}
       {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => handleNavigate('history')} />}

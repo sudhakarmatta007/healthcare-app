@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-// FIX: Import HarmCategory from @google/genai
+// FIX: Use correct import for GoogleGenAI and import HarmCategory
 import { GoogleGenAI, HarmCategory } from '@google/genai';
 import { SendIcon, ChatIcon, CloseIcon } from './icons';
 
@@ -26,12 +26,25 @@ export const Chatbot: React.FC = () => {
 
     useEffect(scrollToBottom, [messages]);
     
+    // Safety settings for the generative model
     // FIX: Use HarmCategory enum for safety settings
     const safetySettings = [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: 'BLOCK_NONE' },
+        {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: 'BLOCK_NONE',
+        },
+        {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: 'BLOCK_NONE',
+        },
+         {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: 'BLOCK_NONE',
+        },
+        {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: 'BLOCK_NONE',
+        },
     ];
 
     const handleSendMessage = async (e: React.FormEvent) => {
@@ -39,20 +52,22 @@ export const Chatbot: React.FC = () => {
         if (!inputValue.trim() || isLoading) return;
 
         const userMessage: Message = { sender: 'user', text: inputValue };
-        const currentHistory = [...messages, userMessage];
-        
-        setMessages(currentHistory);
+        const newMessages = [...messages, userMessage];
+        setMessages(newMessages);
         setInputValue('');
         setIsLoading(true);
 
         try {
+            // FIX: Use GoogleGenAI
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-            const contents = currentHistory.map(msg => ({
+            // Convert messages to Content[] format
+            const contents = newMessages.map(msg => ({
                 role: msg.sender === 'user' ? ('user' as const) : ('model' as const),
                 parts: [{ text: msg.text }]
             }));
-
+            
+            // FIX: use ai.models.generateContent with the correct model
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: contents,
@@ -62,6 +77,7 @@ export const Chatbot: React.FC = () => {
                 },
             });
 
+            // FIX: get text from response.text property
             const text = response.text;
             
             const aiMessage: Message = { sender: 'ai', text };

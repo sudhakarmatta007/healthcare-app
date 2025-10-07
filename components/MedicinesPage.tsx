@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import type { Medicine } from '../types';
 import { MedicineCard } from './MedicineCard';
@@ -23,16 +22,9 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
     }, [medicines, searchTerm, selectedCategory]);
 
     return (
-        <div className="bg-gray-50 min-h-screen">
-            <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
-                <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl font-extrabold text-white sm:text-5xl lg:text-6xl">Order Your Medicines</h1>
-                    <p className="mt-4 text-xl text-blue-100">Quick, easy, and reliable delivery to your doorstep.</p>
-                </div>
-            </header>
-            
+        <div className="bg-background min-h-screen">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="sticky top-20 bg-gray-50/80 backdrop-blur-md z-40 py-6 mb-8">
+                <div className="sticky top-20 bg-background/80 backdrop-blur-md z-40 py-6 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 border-b border-card-border">
                     <div className="max-w-4xl mx-auto">
                         <div className="relative mb-6">
                             <input
@@ -40,14 +32,14 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
                                 placeholder="Search for medicines, supplements..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full px-5 py-3 text-base text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full px-5 py-3 text-base text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all dark:bg-charcoal-light dark:border-gray-600 dark:text-gray-200"
                             />
                              <svg className="w-5 h-5 absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
                         <div className="flex flex-wrap justify-center gap-2">
                              <button
                                 onClick={() => setSelectedCategory('All')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${selectedCategory === 'All' ? 'bg-blue-600 text-white shadow' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
+                                className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${selectedCategory === 'All' ? 'bg-gold-400 text-accent-text shadow' : 'bg-card-bg text-text-secondary hover:bg-gold-400/20'}`}
                             >
                                 All
                             </button>
@@ -55,7 +47,7 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
                                 <button
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}
-                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${selectedCategory === category ? 'bg-blue-600 text-white shadow' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
+                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${selectedCategory === category ? 'bg-gold-400 text-accent-text shadow' : 'bg-card-bg text-text-secondary hover:bg-gold-400/20'}`}
                                 >
                                     {category}
                                 </button>
@@ -71,9 +63,9 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 px-6 bg-white rounded-lg shadow-sm border border-gray-200">
-                         <h3 className="text-xl font-medium text-gray-900">No Medicines Found</h3>
-                         <p className="mt-2 text-gray-500">
+                    <div className="text-center py-16 px-6 bg-card-bg rounded-lg shadow-sm border border-card-border">
+                         <h3 className="text-xl font-medium text-text-primary">No Medicines Found</h3>
+                         <p className="mt-2 text-text-secondary">
                             Try adjusting your search or filters to find what you're looking for.
                          </p>
                     </div>
