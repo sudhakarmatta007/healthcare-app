@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -646,7 +647,7 @@ const App: React.FC = () => {
         theme={theme}
         toggleTheme={toggleTheme}
       />
-      <main className={`flex-grow pt-20 ${isLoggedIn ? 'pb-20' : ''}`}>
+      <main className={`flex-grow pt-16 ${isLoggedIn ? 'pb-16' : ''}`}>
         {showHeader && <PageHeader title={pageTitles[view]} onBack={handleBack} />}
         {renderCurrentView()}
       </main>

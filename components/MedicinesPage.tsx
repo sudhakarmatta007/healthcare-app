@@ -24,7 +24,7 @@ export const MedicinesPage: React.FC<MedicinesPageProps> = ({ medicines, onAddTo
     return (
         <div className="bg-background min-h-screen">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="sticky top-20 bg-background/80 backdrop-blur-md z-40 py-6 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 border-b border-card-border">
+                <div className="sticky top-16 bg-background/80 backdrop-blur-md z-40 py-6 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 border-b border-card-border">
                     <div className="max-w-4xl mx-auto">
                         <div className="relative mb-6">
                             <input

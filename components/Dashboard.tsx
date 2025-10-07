@@ -52,7 +52,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, healthHistory, onNav
                     </div>
                     
                     {/* Sidebar */}
-                    <div className="md:col-span-1 space-y-6 sticky top-28">
+                    <div className="md:col-span-1 space-y-6 sticky top-32">
                          <div className="bg-card-bg p-6 rounded-lg shadow-md border border-card-border">
                             <h3 className="text-lg font-bold text-text-primary mb-4">Quick Actions</h3>
                             <div className="space-y-3">

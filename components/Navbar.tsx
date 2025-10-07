@@ -87,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = (props) => {
         <>
             <nav className="fixed top-0 left-0 right-0 z-50 bg-charcoal-dark/80 backdrop-blur-lg border-b border-white/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-20">
+                    <div className="flex items-center justify-between h-16">
                         {/* Brand */}
                         <div className="flex-shrink-0">
                             <button onClick={() => handleNav('home')} className="text-2xl font-bold text-white">Health<span className="text-gold-400">Connect</span></button>
@@ -149,6 +149,17 @@ export const Navbar: React.FC<NavbarProps> = (props) => {
                         <NavLink onClick={() => handleNav('medicines')} isActive={activeView === 'medicines'} isMobile><MedicineIcon /> Medicines</NavLink>
                         <NavLink onClick={() => handleNav('dashboard')} isActive={activeView === 'dashboard'} isMobile><HistoryIcon /> History</NavLink>
                         <div className="border-t border-white/10 my-4"></div>
+                         <button
+                            onClick={() => {
+                                setIsLocationsPanelOpen(true);
+                                setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 w-full text-left p-4 rounded-lg text-lg text-gray-300 hover:bg-white/10"
+                        >
+                            <LocationPinIcon className="w-6 h-6 text-gold-400" />
+                            <span className="flex-grow truncate">{selectedLocation}</span>
+                            <ChevronDownIcon className="w-6 h-6" />
+                        </button>
                         {isLoggedIn && user ? (
                              <NavLink onClick={() => handleNav('dashboard')} isActive={activeView === 'dashboard'} isMobile><UserIcon /> My Profile</NavLink>
                         ) : (

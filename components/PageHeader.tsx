@@ -7,7 +7,7 @@ interface PageHeaderProps {
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ title, onBack }) => {
   return (
-    <header className="bg-background/80 backdrop-blur-md sticky top-20 z-30 border-b border-card-border">
+    <header className="bg-background/80 backdrop-blur-md sticky top-16 z-30 border-b border-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16">
           <button

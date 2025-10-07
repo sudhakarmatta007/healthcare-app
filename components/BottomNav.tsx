@@ -30,7 +30,7 @@ const NavItem: React.FC<{
 export const BottomNav: React.FC<BottomNavProps> = ({ activeView, onNavigate, cartItemCount }) => {
     // Hide on desktop
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-20 bg-card-bg/80 backdrop-blur-lg border-t border-card-border shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.1)]">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-card-bg/80 backdrop-blur-lg border-t border-card-border shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.1)]">
             <div className="flex justify-around items-stretch h-full">
                 <NavItem 
                     label="Doctors"
