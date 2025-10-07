@@ -98,3 +98,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
     <span className="ml-2">Online Payment</span>
   </label>
 </div>
+  >
+    <input
+      type="radio"
+      name="paymentMethod"
+      value="Online Payment"
+      checked={paymentMethod === 'Online Payment'}
+      onChange={() => setPaymentMethod('Online Payment')}
+      className="h-4 w-4 text-gold-600 border-gray-300 focus:ring"
+    />
+    <span className="ml-2">Online Payment</span>
+  </label>
+</div>
