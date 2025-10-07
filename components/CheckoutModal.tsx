@@ -100,5 +100,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
                              {cartItems.map(item => {
                                 const medicine = medicines.find(m => m.id === item.medicineId);
                                 if (!medicine) return null;
-                                return (
-                                    <div key={item.medicineId} className="flex justify-between items-start
+                               return (
+                                          <div key={item.medicineId} className="flex justify-between items-start">
+                                               {/* JSX content here */}
+                                          </div> 
+                                     );
