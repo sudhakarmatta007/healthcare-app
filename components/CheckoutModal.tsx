@@ -101,7 +101,45 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
                                 const medicine = medicines.find(m => m.id === item.medicineId);
                                 if (!medicine) return null;
                                return (
-                                          <div key={item.medicineId} className="flex justify-between items-start">
-                                               {/* JSX content here */}
-                                          </div> 
-                                     );
+                                    <div key={item.medicineId} className="flex justify-between items-start">
+                                        <div className="flex items-start">
+                                            <img src={medicine.imageUrl} alt={medicine.name} className="w-12 h-12 rounded-md object-cover mr-3" />
+                                            <div>
+                                                <p className="text-sm font-semibold text-foreground leading-tight">{medicine.name}</p>
+                                                <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm font-medium text-foreground">₹{(medicine.price * item.quantity).toFixed(2)}</p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="mt-6 pt-6 border-t border-border flex-shrink-0">
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between text-muted-foreground">
+                                    <span>Subtotal</span>
+                                    <span className="font-medium text-foreground">₹{subtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-muted-foreground">
+                                    <span>Delivery Fee</span>
+                                    <span className="font-medium text-foreground">₹{deliveryFee.toFixed(2)}</span>
+                                </div>
+                                <div className="border-t border-border my-2"></div>
+                                <div className="flex justify-between text-foreground font-bold text-base">
+                                    <span>Total</span>
+                                    <span>₹{total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <button 
+                                type="submit"
+                                className="mt-6 w-full bg-accent text-accent-foreground font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-colors shadow-lg"
+                            >
+                                Place Order (₹{total.toFixed(2)})
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
