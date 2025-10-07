@@ -78,7 +78,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
                             </div>
                         </div>
 
-<h3 className="text-lg font-bold text-text-primary mt-8 mb-4">Payment Method</h3>
+<h3 className="text-lg font-bold text-text-primary mt-8 mb-4">
+  Payment Method
+</h3>
+
 <div className="space-y-3">
   <label
     className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -98,7 +101,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
     <span className="ml-2">Online Payment</span>
   </label>
 </div>
-  >
+
     <input
       type="radio"
       name="paymentMethod"
