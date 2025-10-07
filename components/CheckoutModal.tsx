@@ -48,7 +48,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
     const normalBorder = "border-card-border";
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
             <div className="bg-card-bg rounded-2xl shadow-2xl w-full max-w-4xl relative overflow-hidden max-h-[90vh] flex flex-col">
                 <div className="p-6 border-b border-card-border flex justify-between items-center flex-shrink-0">
                     <h2 className="text-xl font-bold text-text-primary">Checkout</h2>

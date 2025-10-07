@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 
 interface LocationsPanelProps {
@@ -49,7 +50,7 @@ export const LocationsPanel: React.FC<LocationsPanelProps> = ({ isOpen, onClose,
         aria-modal="true"
         aria-labelledby="locations-heading"
     >
-      <div className="fixed inset-0 bg-black bg-opacity-60" onClick={onClose}></div>
+      <div className="fixed inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose}></div>
       <div 
         ref={panelRef}
         className={`bg-white rounded-xl shadow-2xl z-10 w-[90vw] max-w-md overflow-hidden flex flex-col transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}

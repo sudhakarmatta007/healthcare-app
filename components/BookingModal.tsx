@@ -162,9 +162,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                             onClick={() => handleDateSelect(day)}
                             disabled={isPast(day)}
                             className={`w-10 h-10 rounded-full transition-colors duration-200 text-sm font-semibold
-                                ${isPast(day) ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' : 'hover:bg-gold-100 text-gray-700 dark:text-gray-300 dark:hover:bg-charcoal'}
-                                ${isToday(day) ? 'ring-2 ring-gold-500 text-gold-600 dark:text-gold-400' : ''}
-                                ${selectedDate?.getDate() === day && selectedDate.getMonth() === currentMonth ? 'bg-gold-500 text-white hover:bg-gold-600' : ''}
+                                ${isPast(day) ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'border border-card-border hover:bg-gold-100 text-text-primary dark:hover:bg-charcoal'}
+                                ${isToday(day) ? 'ring-2 ring-gold-500' : ''}
+                                ${selectedDate?.getDate() === day && selectedDate.getMonth() === currentMonth ? 'bg-gold-500 text-white hover:bg-gold-600 border-transparent' : ''}
                             `}
                         >
                             {day}
@@ -411,7 +411,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
             <div className={`bg-card-bg rounded-2xl shadow-2xl w-full relative overflow-hidden transition-all duration-300 ${step === 'confirmed' ? 'max-w-2xl' : 'max-w-4xl flex flex-col md:flex-row max-h-[95vh]'}`}>
                 {step === 'confirmed' ? (
                     renderConfirmation()
@@ -421,7 +421,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ doctor, hospitals, o
                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                         <LeftPanel />
-                        <div className="w-full md:w-2/3 overflow-y-auto">
+                        <div className="w-full md:w-2/3 overflow-y-auto bg-background">
                             {step === 'date' && renderCalendar()}
                             {step === 'time' && renderTimeSlots()}
                             {step === 'payment' && renderPayment()}

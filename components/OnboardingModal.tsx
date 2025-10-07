@@ -10,7 +10,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ user, onClose 
     const inputClasses = "mt-1 w-full px-4 py-2 border rounded-lg focus:ring-gold-500 focus:border-gold-500 bg-background text-text-primary border-card-border";
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
             <div className="bg-card-bg rounded-2xl shadow-2xl w-full max-w-lg relative overflow-hidden p-8">
                 <h2 className="text-2xl font-bold text-center text-text-primary mb-2">Complete Your Profile</h2>
                 <p className="text-center text-sm text-text-secondary mb-8">
