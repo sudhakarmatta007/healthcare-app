@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-// FIX: Use correct import for GoogleGenAI and import HarmCategory
-import { GoogleGenAI, HarmCategory } from '@google/genai';
+// FIX: Use correct import for GoogleGenAI and import HarmCategory and HarmBlockThreshold
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 import { SendIcon, ChatIcon, CloseIcon } from './icons';
 
 interface Message {
@@ -31,19 +31,19 @@ export const Chatbot: React.FC = () => {
     const safetySettings = [
         {
             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: 'BLOCK_NONE',
+            threshold: HarmBlockThreshold.BLOCK_NONE,
         },
         {
             category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: 'BLOCK_NONE',
+            threshold: HarmBlockThreshold.BLOCK_NONE,
         },
          {
             category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: 'BLOCK_NONE',
+            threshold: HarmBlockThreshold.BLOCK_NONE,
         },
         {
             category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: 'BLOCK_NONE',
+            threshold: HarmBlockThreshold.BLOCK_NONE,
         },
     ];
 

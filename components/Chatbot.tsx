@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-// FIX: Import HarmCategory from @google/genai
-import { GoogleGenAI, HarmCategory } from '@google/genai';
+// FIX: Import HarmCategory and HarmBlockThreshold from @google/genai
+import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from '@google/genai';
 import { SendIcon, ChatIcon, CloseIcon } from './icons';
 
 interface Message {
@@ -26,12 +26,12 @@ export const Chatbot: React.FC = () => {
 
     useEffect(scrollToBottom, [messages]);
     
-    // FIX: Use HarmCategory enum for safety settings
+    // FIX: Use HarmCategory and HarmBlockThreshold enums for safety settings
     const safetySettings = [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: 'BLOCK_NONE' },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: 'BLOCK_NONE' },
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
     ];
 
     const handleSendMessage = async (e: React.FormEvent) => {
