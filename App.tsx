@@ -21,6 +21,7 @@ import { MedicinesPage } from './components/MedicinesPage';
 import { CartPage } from './components/CartPage';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
+import { SymptomCheckerModal } from './components/SymptomCheckerModal';
 import { BottomNav } from './components/BottomNav';
 import { PageHeader } from './components/PageHeader';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
@@ -301,6 +302,7 @@ const App: React.FC = () => {
   const [isRegisterHospitalModalOpen, setIsRegisterHospitalModalOpen] = useState(false);
   const [isRegisterDoctorModalOpen, setIsRegisterDoctorModalOpen] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
+  const [isSymptomCheckerOpen, setIsSymptomCheckerOpen] = useState(false);
   
   // User state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -557,24 +559,24 @@ const App: React.FC = () => {
     
     switch (view) {
       case 'home':
-        return <HeroSection onAppointmentClick={() => handleNavigate('find-care')} onMedicinesClick={() => handleNavigate('medicines')} />;
+        return <HeroSection onAppointmentClick={() => handleNavigate('find-care')} onMedicinesClick={() => handleNavigate('medicines')} onSymptomCheckClick={() => setIsSymptomCheckerOpen(true)} />;
       case 'find-care':
         return (
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-up">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-text-primary">Find Care</h1>
-                <p className="mt-2 text-lg text-text-secondary">Select a category to begin your search.</p>
+                <h1 className="text-4xl font-bold text-foreground">Find Care</h1>
+                <p className="mt-2 text-lg text-muted-foreground">Select a category to begin your search.</p>
             </div>
             <div className="flex justify-center mb-8 gap-4">
                 <button
                     onClick={() => setActiveCareView('doctors')}
-                    className={`px-8 py-3 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeCareView === 'doctors' ? 'bg-gold-400 text-accent-text shadow-lg' : 'bg-card-bg text-text-primary shadow dark:bg-charcoal-light'}`}
+                    className={`px-8 py-3 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeCareView === 'doctors' ? 'bg-accent text-accent-foreground shadow-lg' : 'bg-card text-foreground shadow'}`}
                 >
                     Doctors
                 </button>
                 <button
                     onClick={() => setActiveCareView('hospitals')}
-                    className={`px-8 py-3 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeCareView === 'hospitals' ? 'bg-gold-400 text-accent-text shadow-lg' : 'bg-card-bg text-text-primary shadow dark:bg-charcoal-light'}`}
+                    className={`px-8 py-3 text-lg font-bold rounded-full transition-all duration-300 transform hover:-translate-y-1 ${activeCareView === 'hospitals' ? 'bg-accent text-accent-foreground shadow-lg' : 'bg-card text-foreground shadow'}`}
                 >
                     Hospitals
                 </button>
@@ -588,7 +590,7 @@ const App: React.FC = () => {
                             value={searchTerm}
                             onChange={handleSearchChange}
                             onFocus={() => setShowSuggestions(searchTerm.length > 1)}
-                            className="w-full px-5 py-4 text-lg text-gray-800 bg-white border-2 border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition-all dark:bg-charcoal-light dark:border-gray-600 dark:text-gray-200"
+                            className="w-full px-5 py-4 text-lg bg-background border-2 border-border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         />
                         <SearchSuggestions 
                             suggestions={searchSuggestions}
@@ -631,7 +633,7 @@ const App: React.FC = () => {
   const cartItemCount = useMemo(() => cart.reduce((total, item) => total + item.quantity, 0), [cart]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-text-primary">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Navbar
         onNavigate={handleNavigate}
         activeView={view}
@@ -663,6 +665,7 @@ const App: React.FC = () => {
       {isOnboardingModalOpen && currentUser && <OnboardingModal user={currentUser} onClose={handleCloseOnboarding} />}
       {isRegisterHospitalModalOpen && <RegisterHospitalModal onClose={() => setIsRegisterHospitalModalOpen(false)} />}
       {isRegisterDoctorModalOpen && <RegisterDoctorModal onClose={() => setIsRegisterDoctorModalOpen(false)} />}
+      {isSymptomCheckerOpen && <SymptomCheckerModal onClose={() => setIsSymptomCheckerOpen(false)} />}
       
       {isCheckoutModalOpen && <CheckoutModal
         cartItems={cart}

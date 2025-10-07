@@ -57,18 +57,18 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
             onClick={onClick}
             className={`flex-1 text-center px-4 py-3 font-semibold border-b-2 transition-colors duration-300 ${
                 isActive
-                    ? 'border-gold-400 text-gold-400'
-                    : 'border-transparent text-text-secondary hover:text-text-primary'
+                    ? 'border-accent text-accent'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
         >
-            {label} <span className={`ml-2 px-2.5 py-1 text-xs rounded-full ${isActive ? 'bg-gold-400/20 text-gold-400' : 'bg-gray-200 dark:bg-charcoal-light text-text-secondary'}`}>{count}</span>
+            {label} <span className={`ml-2 px-2.5 py-1 text-xs rounded-full ${isActive ? 'bg-accent/20 text-accent' : 'bg-secondary text-secondary-foreground'}`}>{count}</span>
         </button>
     );
 
     return (
         <div className="bg-background min-h-screen">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="border-b border-card-border mb-8">
+                <div className="border-b border-border mb-8">
                     <div className="flex">
                         <TabButton label="Current" count={currentAppointments.length} isActive={activeTab === 'current'} onClick={() => setActiveTab('current')} />
                         <TabButton label="Past" count={historyAppointments.length} isActive={activeTab === 'history'} onClick={() => setActiveTab('history')} />
@@ -83,11 +83,11 @@ export const AppointmentsPage: React.FC<AppointmentsPageProps> = ({ appointments
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-16 px-6 bg-card-bg rounded-lg shadow-sm border border-card-border animate-fade-in">
-                             <h3 className="text-xl font-medium text-text-primary">
+                        <div className="text-center py-16 px-6 bg-card rounded-lg shadow-sm border border-border animate-fade-in">
+                             <h3 className="text-xl font-medium text-foreground">
                                 {activeTab === 'current' ? 'You have no upcoming appointments.' : 'No past appointments to show.'}
                              </h3>
-                             <p className="mt-2 text-text-secondary">
+                             <p className="mt-2 text-muted-foreground">
                                 {activeTab === 'current' ? "When you book a new appointment, it will show up here." : "Your completed or cancelled appointments will appear here."}
                              </p>
                         </div>

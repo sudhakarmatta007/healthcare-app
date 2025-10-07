@@ -11,11 +11,11 @@ interface AppointmentCardProps {
 
 const InfoItem: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
     <div>
-        <dt className="flex items-center text-sm font-medium text-text-secondary">
+        <dt className="flex items-center text-sm font-medium text-muted-foreground">
             {icon}
             <span className="ml-2">{label}</span>
         </dt>
-        <dd className="mt-1 text-sm text-text-primary font-semibold">{value}</dd>
+        <dd className="mt-1 text-sm text-foreground font-semibold">{value}</dd>
     </div>
 );
 
@@ -54,53 +54,53 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
     const renderFooter = () => {
         if (status === 'Upcoming') {
             return (
-                <div className="bg-background px-6 py-3 flex flex-wrap gap-2 justify-end">
-                    <button onClick={() => onCancelAppointment(id)} className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">Cancel</button>
-                    <button onClick={() => onRebookAppointment(doctor)} className="text-sm font-medium text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors">Reschedule</button>
+                <div className="bg-secondary/50 px-6 py-3 flex flex-wrap gap-4 justify-end">
+                    <button onClick={() => onCancelAppointment(id)} className="text-sm font-medium text-destructive hover:opacity-80 transition-colors">Cancel</button>
+                    <button onClick={() => onRebookAppointment(doctor)} className="text-sm font-medium text-accent hover:opacity-80 transition-colors">Reschedule</button>
                 </div>
             );
         }
         
         if (status === 'Completed') {
              return (
-                <div className="bg-background px-6 py-4">
+                <div className="bg-secondary/50 px-6 py-4">
                     {typeof appointment.doctorRating === 'number' && typeof appointment.serviceRating === 'number' ? (
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                             <div>
-                                <h4 className="text-sm font-bold text-text-primary mb-3 sm:mb-0">Your Rating</h4>
+                                <h4 className="text-sm font-bold text-foreground mb-3 sm:mb-0">Your Rating</h4>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-text-secondary">Doctor:</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Doctor:</p>
                                         <StarRating rating={appointment.doctorRating} />
                                     </div>
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-text-secondary">Service:</p>
+                                        <p className="text-sm font-medium text-muted-foreground">Service:</p>
                                         <StarRating rating={appointment.serviceRating} />
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors flex-shrink-0 self-end sm:self-center">Re-book</button>
+                            <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-accent text-accent-foreground text-sm font-semibold rounded-lg hover:bg-opacity-90 transition-colors flex-shrink-0 self-end sm:self-center">Re-book</button>
                         </div>
                     ) : (
                         <div>
-                            <h4 className="text-sm font-bold text-text-primary mb-3">Rate Your Experience</h4>
+                            <h4 className="text-sm font-bold text-foreground mb-3">Rate Your Experience</h4>
                             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                                <div className="flex flex-col sm:flex-row sm:items-center gap-y-2 gap-x-8">
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-text-secondary w-16">Doctor</p>
+                                        <p className="text-sm font-medium text-muted-foreground w-16">Doctor</p>
                                         <StarRating rating={tempDoctorRating} onRatingChange={setTempDoctorRating} isEditable />
                                     </div>
                                     <div className="flex items-center gap-x-2">
-                                        <p className="text-sm font-medium text-text-secondary w-16">Service</p>
+                                        <p className="text-sm font-medium text-muted-foreground w-16">Service</p>
                                         <StarRating rating={tempServiceRating} onRatingChange={setTempServiceRating} isEditable />
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 self-end xl:self-center">
-                                     <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 border border-gold-400 text-gold-400 text-sm font-semibold rounded-lg hover:bg-gold-400/10 transition-colors flex-shrink-0">Re-book</button>
+                                     <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 border border-accent text-accent text-sm font-semibold rounded-lg hover:bg-accent/10 transition-colors flex-shrink-0">Re-book</button>
                                      <button
                                         onClick={handleSubmitRating}
                                         disabled={!tempDoctorRating || !tempServiceRating}
-                                        className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="px-4 py-2 bg-accent text-accent-foreground text-sm font-semibold rounded-lg hover:bg-opacity-90 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         Submit Rating
                                     </button>
@@ -114,8 +114,8 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
 
         if (status === 'Cancelled') {
             return (
-                 <div className="bg-background px-6 py-3 flex justify-end">
-                    <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-gold-400 text-accent-text text-sm font-semibold rounded-lg hover:bg-gold-500 transition-colors">Book Again</button>
+                 <div className="bg-secondary/50 px-6 py-3 flex justify-end">
+                    <button onClick={() => onRebookAppointment(doctor)} className="px-4 py-2 bg-accent text-accent-foreground text-sm font-semibold rounded-lg hover:bg-opacity-90 transition-colors">Book Again</button>
                 </div>
             );
         }
@@ -125,25 +125,25 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
 
 
     return (
-        <div className="bg-card-bg rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-card-border">
+        <div className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-border">
             <div className="p-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-start">
                     <div>
                         <div className="flex items-center mb-4">
-                            <img src={doctor.imageUrl} alt={doctor.name} className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-charcoal shadow-sm" />
+                            <img src={doctor.imageUrl} alt={doctor.name} className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-sm" />
                             <div className="ml-4">
-                                <h3 className="text-xl font-bold text-text-primary">{doctor.name}</h3>
-                                <p className="text-md text-gold-600 dark:text-gold-400 font-semibold">{specialty}</p>
+                                <h3 className="text-xl font-bold text-foreground">{doctor.name}</h3>
+                                <p className="text-md text-accent font-semibold">{specialty}</p>
                             </div>
                         </div>
                     </div>
                     <div className="mt-4 sm:mt-0 flex flex-col items-start sm:items-end">
                          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusStyles[status]}`}>{status}</span>
-                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">ID: {id}</p>
+                         <p className="text-xs text-muted-foreground mt-2">ID: {id}</p>
                     </div>
                 </div>
 
-                <hr className="my-4 border-card-border" />
+                <hr className="my-4 border-border" />
 
                 <dl className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
                     <InfoItem icon={<DoctorIcon />} label="Doctor" value={doctor.name} />

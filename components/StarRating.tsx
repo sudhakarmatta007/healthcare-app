@@ -8,7 +8,7 @@ interface StarRatingProps {
 
 const StarIcon: React.FC<{ filled: boolean; className?: string }> = ({ filled, className }) => (
     <svg
-        className={`w-5 h-5 ${filled ? 'text-gold-400' : 'text-gray-300 dark:text-gray-600'} ${className}`}
+        className={`w-5 h-5 ${filled ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'} ${className}`}
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"

@@ -7,7 +7,7 @@
     <title>Health Connect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
   <script type="importmap">
 {
@@ -25,27 +25,47 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
           },
           colors: {
-            gold: {
-              DEFAULT: '#FFD700',
-              '50': '#FFFBEA',
-              '100': '#FFF6C5',
-              '200': '#FFED8A',
-              '300': '#FFE24D',
-              '400': '#FFD700',
-              '500': '#F3C500',
-              '600': '#D9A900',
-              '700': '#B38600',
-              '800': '#8C6600',
-              '900': '#6B4F00',
+            border: 'rgb(var(--border) / <alpha-value>)',
+            input: 'rgb(var(--input) / <alpha-value>)',
+            ring: 'rgb(var(--ring) / <alpha-value>)',
+            background: 'rgb(var(--background) / <alpha-value>)',
+            foreground: 'rgb(var(--foreground) / <alpha-value>)',
+            primary: {
+              DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+              foreground: 'rgb(var(--primary-foreground) / <alpha-value>)',
             },
-            charcoal: {
-              DEFAULT: '#1F2937',
-              light: '#374151',
-              dark: '#11182B',
-            }
+            secondary: {
+              DEFAULT: 'rgb(var(--secondary) / <alpha-value>)',
+              foreground: 'rgb(var(--secondary-foreground) / <alpha-value>)',
+            },
+            destructive: {
+              DEFAULT: 'rgb(var(--destructive) / <alpha-value>)',
+              foreground: 'rgb(var(--destructive-foreground) / <alpha-value>)',
+            },
+            muted: {
+              DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
+              foreground: 'rgb(var(--muted-foreground) / <alpha-value>)',
+            },
+            accent: {
+              DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+              foreground: 'rgb(var(--accent-foreground) / <alpha-value>)',
+            },
+            popover: {
+              DEFAULT: 'rgb(var(--popover) / <alpha-value>)',
+              foreground: 'rgb(var(--popover-foreground) / <alpha-value>)',
+            },
+            card: {
+              DEFAULT: 'rgb(var(--card) / <alpha-value>)',
+              foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
+            },
+          },
+          borderRadius: {
+            lg: `0.5rem`,
+            md: `calc(0.5rem - 2px)`,
+            sm: `calc(0.5rem - 4px)`,
           },
           keyframes: {
             'slide-in-right': {
@@ -77,33 +97,53 @@
   </script>
   <style>
     :root {
-      --background: #FFFFFF;
-      --foreground: #11182B;
-      --card-bg: #FFFFFF;
-      --card-border: #E5E7EB;
-      --text-primary: #1F2937;
-      --text-secondary: #6B7280;
-      --accent: #FFD700;
-      --accent-dark: #D9A900;
-      --accent-text: #1F2937;
+      --background: 255 255 255;
+      --foreground: 3 7 18;
+      --card: 249 250 251;
+      --card-foreground: 3 7 18;
+      --popover: 255 255 255;
+      --popover-foreground: 3 7 18;
+      --primary: 3 7 18;
+      --primary-foreground: 249 250 251;
+      --secondary: 243 244 246;
+      --secondary-foreground: 3 7 18;
+      --muted: 243 244 246;
+      --muted-foreground: 107 114 128;
+      --accent: 30 58 138;
+      --accent-foreground: 255 255 255;
+      --destructive: 220 38 38;
+      --destructive-foreground: 249 250 251;
+      --border: 229 231 235;
+      --input: 229 231 235;
+      --ring: 30 58 138;
     }
 
     html.dark {
-      --background: #11182B;
-      --foreground: #F9FAFB;
-      --card-bg: #1F2937;
-      --card-border: #374151;
-      --text-primary: #F3F4F6;
-      --text-secondary: #9CA3AF;
-      --accent: #FFD700;
-      --accent-dark: #FFE24D;
-      --accent-text: #1F2937;
+      --background: 3 7 18;
+      --foreground: 249 250 251;
+      --card: 17 24 39;
+      --card-foreground: 249 250 251;
+      --popover: 3 7 18;
+      --popover-foreground: 249 250 251;
+      --primary: 249 250 251;
+      --primary-foreground: 3 7 18;
+      --secondary: 55 65 81;
+      --secondary-foreground: 249 250 251;
+      --muted: 55 65 81;
+      --muted-foreground: 156 163 175;
+      --accent: 59 130 246;
+      --accent-foreground: 249 250 251;
+      --destructive: 153 27 27;
+      --destructive-foreground: 249 250 251;
+      --border: 55 65 81;
+      --input: 55 65 81;
+      --ring: 59 130 246;
     }
 
     body {
-      background-color: var(--background);
-      color: var(--text-primary);
-      font-family: 'Poppins', sans-serif;
+      background-color: rgb(var(--background));
+      color: rgb(var(--foreground));
+      font-family: 'Inter', sans-serif;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
