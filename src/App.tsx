@@ -23,7 +23,6 @@ import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { BottomNav } from './components/BottomNav';
 import { PageHeader } from './components/PageHeader';
 import type { Doctor, Hospital, HospitalDoctor, Appointment, User, HealthEvent, Medicine, CartItem, DeliveryDetails, Order } from './types';
-import { Chatbot } from './components/Chatbot';
 
 type View = 'home' | 'find-care' | 'history' | 'dashboard' | 'medicines' | 'cart';
 
@@ -618,6 +617,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => handleNavigate('history')} />;
       case 'history':
+        {/* FIX: Pass 'handleUpdateRating' to 'onUpdateRating' prop instead of the undefined 'onUpdateRating'. */}
         return <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>;
       case 'medicines':
         return <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />;
@@ -655,8 +655,6 @@ const App: React.FC = () => {
       {isLoggedIn && <BottomNav activeView={view} onNavigate={handleNavigate} cartItemCount={cartItemCount} />}
 
       <Footer />
-      
-      <Chatbot />
 
       {/* Modals */}
       {selectedDoctorForBooking && <BookingModal doctor={selectedDoctorForBooking} hospitals={HOSPITALS_DATA} onClose={() => setSelectedDoctorForBooking(null)} onAppointmentBooked={handleAppointmentBooked} onNavigateToAppointments={() => handleNavigate('history')} />}
