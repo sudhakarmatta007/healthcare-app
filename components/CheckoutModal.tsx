@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import type { CartItem, Medicine, DeliveryDetails } from '../types';
 
@@ -78,38 +79,66 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ cartItems, medicin
                             </div>
                         </div>
 
-<h3 className="text-lg font-bold text-text-primary mt-8 mb-4">
-  Payment Method
-</h3>
+                        <h3 className="text-lg font-bold text-text-primary mt-8 mb-4">Payment Method</h3>
+                        <div className="space-y-3">
+                            <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'Online Payment' ? 'bg-gold-500/10 border-gold-500' : 'border-card-border hover:border-gold-400'}`}>
+                                <input type="radio" name="paymentMethod" value="Online Payment" checked={paymentMethod === 'Online Payment'} onChange={() => setPaymentMethod('Online Payment')} className="h-4 w-4 text-gold-600 border-gray-300 focus:ring-gold-500" />
+                                <span className="ml-3 font-semibold text-text-primary">Online Payment</span>
+                            </label>
+                            <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'Cash on Delivery' ? 'bg-gold-500/10 border-gold-500' : 'border-card-border hover:border-gold-400'}`}>
+                                <input type="radio" name="paymentMethod" value="Cash on Delivery" checked={paymentMethod === 'Cash on Delivery'} onChange={() => setPaymentMethod('Cash on Delivery')} className="h-4 w-4 text-gold-600 border-gray-300 focus:ring-gold-500" />
+                                <span className="ml-3 font-semibold text-text-primary">Cash on Delivery</span>
+                            </label>
+                        </div>
+                    </div>
 
-<div className="space-y-3">
-  <label
-    className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-      paymentMethod === 'Online Payment'
-        ? 'bg-gold-500/10 border-gold-500'
-        : 'border-card-border hover:border-gold-400'
-    }`}
-  >
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="Online Payment"
-      checked={paymentMethod === 'Online Payment'}
-      onChange={() => setPaymentMethod('Online Payment')}
-      className="h-4 w-4 text-gold-600 border-gray-300 focus:ring"
-    />
-    <span className="ml-2">Online Payment</span>
-  </label>
-</div>
-
-    <input
-      type="radio"
-      name="paymentMethod"
-      value="Online Payment"
-      checked={paymentMethod === 'Online Payment'}
-      onChange={() => setPaymentMethod('Online Payment')}
-      className="h-4 w-4 text-gold-600 border-gray-300 focus:ring"
-    />
-    <span className="ml-2">Online Payment</span>
-  </label>
-</div>
+                    {/* Right Panel: Summary */}
+                    <div className="w-full md:w-2/5 bg-gray-50 dark:bg-charcoal-dark p-6 border-l border-card-border flex flex-col">
+                        <h3 className="text-lg font-bold text-text-primary mb-4">Order Summary</h3>
+                        <div className="flex-grow space-y-3 overflow-y-auto pr-2">
+                             {cartItems.map(item => {
+                                const medicine = medicines.find(m => m.id === item.medicineId);
+                                if (!medicine) return null;
+                                return (
+                                    <div key={item.medicineId} className="flex justify-between items-start">
+                                        <div className="flex items-start">
+                                            <img src={medicine.imageUrl} alt={medicine.name} className="w-12 h-12 rounded-md object-cover mr-3" />
+                                            <div>
+                                                <p className="text-sm font-semibold text-text-primary leading-tight">{medicine.name}</p>
+                                                <p className="text-xs text-text-secondary">Qty: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm font-medium text-text-primary">₹{(medicine.price * item.quantity).toFixed(2)}</p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="mt-6 pt-6 border-t border-card-border flex-shrink-0">
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between text-text-secondary">
+                                    <span>Subtotal</span>
+                                    <span className="font-medium text-text-primary">₹{subtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-text-secondary">
+                                    <span>Delivery Fee</span>
+                                    <span className="font-medium text-text-primary">₹{deliveryFee.toFixed(2)}</span>
+                                </div>
+                                <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
+                                <div className="flex justify-between text-text-primary font-bold text-base">
+                                    <span>Total</span>
+                                    <span>₹{total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <button 
+                                type="submit"
+                                className="mt-6 w-full bg-gold-400 text-accent-text font-bold py-3 px-4 rounded-lg hover:bg-gold-500 transition-colors shadow-lg"
+                            >
+                                Place Order (₹{total.toFixed(2)})
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};

@@ -617,7 +617,6 @@ const App: React.FC = () => {
       case 'dashboard':
         return currentUser && <Dashboard user={currentUser} healthHistory={healthHistory} onNavigateToAppointments={() => handleNavigate('history')} />;
       case 'history':
-        {/* FIX: Pass 'handleUpdateRating' to 'onUpdateRating' prop instead of the undefined 'onUpdateRating'. */}
         return <AppointmentsPage appointments={appointments} onUpdateRating={handleUpdateRating} onCancelAppointment={handleRequestCancelAppointment} onRebookAppointment={handleRebookAppointment}/>;
       case 'medicines':
         return <MedicinesPage medicines={MEDICINES_DATA} onAddToCart={handleAddToCart} />;
